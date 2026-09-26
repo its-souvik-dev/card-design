@@ -144,7 +144,7 @@ function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
         </p>
         <div className="note-foot">
           <button type="button" className="share" onClick={() => onShare(p)}>
-            {copied === p.id ? 'Link copied' : 'Share to customer'}
+            {copied === p.id ? 'Link copied' : 'Share'}
             <Icon name={copied === p.id ? 'check' : 'share'} size={16} />
           </button>
         </div>

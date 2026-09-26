@@ -471,8 +471,7 @@
 
 .note-foot {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
 }
 
 .fav {
@@ -493,7 +492,9 @@
 .fav.is-on { color: #e0365c; }
 
 .share {
-  flex: 1;
+  flex: 0 0 50%;
+  padding: 0 14px;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
