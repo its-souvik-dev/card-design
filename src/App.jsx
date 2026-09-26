@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
-
+import Home from './Home.jsx'
 import { CATEGORIES, PRODUCTS } from './products.js'
+import { Earn, Icon } from './ui.jsx'
 
-const APPROVAL = { 1: 'Fair', 2: 'Good', 3: 'Excellent' }
 const SORTS = ['Highest earning', 'Top selling']
 
 function load(key, fallback) {
@@ -29,48 +29,13 @@ function initialTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-const ICONS = {
-  back: 'M15 5 8 12l7 7',
-  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM20 20l-4-4',
-  share: 'M7 17 17 7M9 7h8v8',
-  check: 'M5 12.5 10 17 19 7',
-  sort: 'M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3',
-  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
-  moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z',
-  sun: 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
-}
-
-function Icon({ name, size = 18, filled = false }) {
+function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d={ICONS[name]}
-        fill={filled ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function ApprovalMeter({ level }) {
-  return (
-    <span className={`meter meter-${level}`}>
-      <span className="meter-bars" aria-hidden="true">
-        {[1, 2, 3].map((n) => (
-          <i key={n} className={n <= level ? 'on' : ''} />
-        ))}
-      </span>
-      {APPROVAL[level]}
-    </span>
-  )
-}
-
-function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
-  return (
-    <article className="card" style={{ '--accent': p.color, '--i': index }}>
+    <article
+      id={`p-${p.id}`}
+      className={isFocus ? 'card is-focus' : 'card'}
+      style={{ '--accent': p.color, '--i': index }}
+    >
       <header className="card-head">
         <div className="logo" aria-hidden="true">{p.mono}</div>
         <div className="card-title">
@@ -110,14 +75,6 @@ function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
             <dd>{v}</dd>
           </div>
         ))}
-        {p.approval && (
-          <div>
-            <dt>Approval</dt>
-            <dd>
-              <ApprovalMeter level={p.approval} />
-            </dd>
-          </div>
-        )}
       </dl>
 
       <div className="note">
@@ -125,23 +82,7 @@ function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
           <p className="note-label">Earn upto</p>
           {p.campaign && <span className="campaign">{p.campaign}</span>}
         </div>
-        <p className="amount">
-          {p.percent ? (
-            <>
-              {p.earn}
-              <span className="amount-sym">%</span>
-            </>
-          ) : (
-            <>
-              <span className="amount-sym">₹</span>
-              {p.earn.toLocaleString('en-IN')}
-            </>
-          )}
-          <span className="amount-unit">
-            <span className="unit-lead">{p.unit.split(' ')[0]}</span>
-            <span className="unit-word">{p.unit.split(' ').slice(1).join(' ')}</span>
-          </span>
-        </p>
+        <Earn p={p} />
         <div className="note-foot">
           <button type="button" className="share" onClick={() => onShare(p)}>
             {copied === p.id ? 'Link copied' : 'Share'}
@@ -155,6 +96,9 @@ function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
 
 function App() {
   const [theme, setTheme] = useState(initialTheme)
+  const [screen, setScreen] = useState('home')
+  const [focusId, setFocusId] = useState(null)
+  const tabsRef = useRef()
   const [category, setCategory] = useState('cards')
   const [bank, setBank] = useState('All')
   const [query, setQuery] = useState('')
@@ -170,6 +114,35 @@ function App() {
   }, [theme])
 
   useEffect(() => save('favs', favs), [favs])
+
+  // Arriving on Products: centre the active tab, then bring a tapped product into view.
+  useEffect(() => {
+    if (screen !== 'products') return
+    tabsRef.current
+      ?.querySelector('.is-active')
+      ?.scrollIntoView({ inline: 'center', block: 'nearest' })
+    if (!focusId) return
+    document.getElementById(`p-${focusId}`)?.scrollIntoView({ block: 'center' })
+    const t = setTimeout(() => setFocusId(null), 1600)
+    return () => clearTimeout(t)
+  }, [screen, category, focusId])
+
+  function openProducts(categoryId, productId = null) {
+    setCategory(categoryId)
+    setBank('All')
+    setQuery('')
+    setFavOnly(false)
+    setFocusId(productId)
+    setScreen('products')
+    window.scrollTo(0, 0)
+  }
+
+  function goHome() {
+    setScreen('home')
+    window.scrollTo(0, 0)
+  }
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark')
 
   const banks = useMemo(
     () => ['All', ...new Set(PRODUCTS.filter((p) => p.category === category).map((p) => p.bank))],
@@ -222,10 +195,24 @@ function App() {
     setFavOnly(false)
   }
 
+  if (screen === 'home') {
+    return (
+      <Home
+        theme={theme}
+        onTheme={toggleTheme}
+        favs={favs}
+        copied={copied}
+        onOpenCategory={(id) => openProducts(id)}
+        onOpenProduct={(p) => openProducts(p.category, p.id)}
+        onShare={handleShare}
+      />
+    )
+  }
+
   return (
     <div className="app">
       <header className="topbar">
-        <button type="button" className="icon-btn ghost" aria-label="Back">
+        <button type="button" className="icon-btn ghost" aria-label="Back to home" onClick={goHome}>
           <Icon name="back" size={22} />
         </button>
         <h1>Products</h1>
@@ -243,7 +230,7 @@ function App() {
           type="button"
           className="icon-btn"
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={toggleTheme}
         >
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
         </button>
@@ -260,7 +247,7 @@ function App() {
           />
         </label>
 
-        <div className="tabs" role="tablist" aria-label="Product type">
+        <div className="tabs" role="tablist" aria-label="Product type" ref={tabsRef}>
           {CATEGORIES.map((c) => (
             <button
               key={c.id}
@@ -312,6 +299,7 @@ function App() {
                 p={p}
                 index={i}
                 isFav={favs.includes(p.id)}
+                isFocus={focusId === p.id}
                 copied={copied}
                 onFav={toggleFav}
                 onShare={handleShare}

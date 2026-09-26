@@ -1,17 +1,16 @@
 export const CATEGORIES = [
-  { id: 'cards', label: 'Credit cards' },
-  { id: 'loans', label: 'Loans' },
-  { id: 'bank', label: 'Bank accounts' },
-  { id: 'demat', label: 'Demat accounts' },
-  { id: 'insurance', label: 'Insurance' },
-  { id: 'invest', label: 'Investment' },
-  { id: 'deals', label: 'Deals' },
-  { id: 'crypto', label: 'Crypto accounts' },
-  { id: 'games', label: 'Games' },
+  { id: 'cards', label: 'Credit cards', short: 'Cards' },
+  { id: 'loans', label: 'Loans', short: 'Loans' },
+  { id: 'bank', label: 'Bank accounts', short: 'Bank' },
+  { id: 'demat', label: 'Demat accounts', short: 'Demat' },
+  { id: 'insurance', label: 'Insurance', short: 'Insurance' },
+  { id: 'invest', label: 'Investment', short: 'Invest' },
+  { id: 'deals', label: 'Deals', short: 'Deals' },
+  { id: 'crypto', label: 'Crypto accounts', short: 'Crypto' },
+  { id: 'games', label: 'Games', short: 'Games' },
 ]
 
-// Each card shows 3 facts: two from `facts` plus `approval` (1–3),
-// or three from `facts` when a product has no approval step.
+// Each card shows exactly 3 facts.
 export const PRODUCTS = [
   {
     id: 'axis-flipkart',
@@ -28,8 +27,8 @@ export const PRODUCTS = [
     facts: [
       ['Joining fee', '₹0'],
       ['Annual fee', '₹500 + GST'],
+      ['Payout in', 'Same day'],
     ],
-    approval: 3,
     link: 'https://example.com/p/axis-flipkart',
   },
   {
@@ -46,8 +45,8 @@ export const PRODUCTS = [
     facts: [
       ['Joining fee', 'Zero'],
       ['Annual fee', 'Zero'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/roarbank-upi',
   },
   {
@@ -64,8 +63,8 @@ export const PRODUCTS = [
     facts: [
       ['Joining fee', '₹0'],
       ['Annual fee', '₹0'],
+      ['Payout in', '7 days'],
     ],
-    approval: 2,
     link: 'https://example.com/p/indusind-rupay',
   },
   {
@@ -82,8 +81,8 @@ export const PRODUCTS = [
     facts: [
       ['Joining fee', '₹1,000'],
       ['Annual fee', '₹1,000'],
+      ['Payout in', '7 days'],
     ],
-    approval: 2,
     link: 'https://example.com/p/hdfc-millennia',
   },
   {
@@ -100,8 +99,8 @@ export const PRODUCTS = [
     facts: [
       ['Joining fee', '₹0'],
       ['Annual fee', '₹0'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/au-lit',
   },
   {
@@ -120,8 +119,8 @@ export const PRODUCTS = [
     facts: [
       ['Loan up to', '₹15L'],
       ['Interest from', '16% p.a.'],
+      ['Payout in', 'Same day'],
     ],
-    approval: 2,
     link: 'https://example.com/p/incred-pl',
   },
   {
@@ -139,8 +138,8 @@ export const PRODUCTS = [
     facts: [
       ['Loan up to', '₹1L'],
       ['Interest from', '18% p.a.'],
+      ['Payout in', '24 hrs'],
     ],
-    approval: 3,
     link: 'https://example.com/p/ramfincorp-pl',
   },
   {
@@ -158,8 +157,8 @@ export const PRODUCTS = [
     facts: [
       ['Loan up to', '₹5L'],
       ['Interest from', '18% p.a.'],
+      ['Payout in', '3 days'],
     ],
-    approval: 2,
     link: 'https://example.com/p/prefr-pl',
   },
 
@@ -179,8 +178,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. balance', '₹0'],
       ['Interest', 'Up to 4%'],
+      ['Payout in', 'Same day'],
     ],
-    approval: 3,
     link: 'https://example.com/p/kotak-811',
   },
   {
@@ -197,8 +196,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. balance', '₹10,000'],
       ['Interest', 'Up to 7%'],
+      ['Payout in', '7 days'],
     ],
-    approval: 2,
     link: 'https://example.com/p/idfc-savings',
   },
   {
@@ -215,8 +214,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. balance', '₹2,000'],
       ['Interest', 'Up to 7.25%'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/au-savings',
   },
 
@@ -235,8 +234,8 @@ export const PRODUCTS = [
     facts: [
       ['Opening fee', '₹0'],
       ['Intraday', '₹20 / order'],
+      ['Payout in', '24 hrs'],
     ],
-    approval: 3,
     link: 'https://example.com/p/angel-one',
   },
   {
@@ -254,8 +253,8 @@ export const PRODUCTS = [
     facts: [
       ['Opening fee', '₹0'],
       ['Intraday', '₹20 / order'],
+      ['Payout in', '24 hrs'],
     ],
-    approval: 3,
     link: 'https://example.com/p/upstox',
   },
   {
@@ -272,8 +271,8 @@ export const PRODUCTS = [
     facts: [
       ['Opening fee', '₹0'],
       ['AMC', '₹0'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/groww-demat',
   },
 
@@ -293,8 +292,8 @@ export const PRODUCTS = [
     facts: [
       ['Premium from', '₹2,094'],
       ['Claims settled', '96%'],
+      ['Payout in', '24 hrs'],
     ],
-    approval: 3,
     link: 'https://example.com/p/acko-car',
   },
   {
@@ -313,8 +312,8 @@ export const PRODUCTS = [
     facts: [
       ['Cover up to', '₹1 Cr'],
       ['Premium from', '₹650/mo'],
+      ['Payout in', 'Same day'],
     ],
-    approval: 2,
     link: 'https://example.com/p/care-health',
   },
   {
@@ -332,8 +331,8 @@ export const PRODUCTS = [
     facts: [
       ['Premium from', '₹538'],
       ['Garages', '2,000+'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/hdfc-ergo-bike',
   },
 
@@ -468,8 +467,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. deposit', '₹100'],
       ['Trading fee', '0.5%'],
+      ['Payout in', '24 hrs'],
     ],
-    approval: 3,
     link: 'https://example.com/p/coindcx',
   },
   {
@@ -487,8 +486,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. deposit', '₹100'],
       ['Trading fee', '0.3%'],
+      ['Payout in', 'Same day'],
     ],
-    approval: 2,
     link: 'https://example.com/p/mudrex',
   },
   {
@@ -505,8 +504,8 @@ export const PRODUCTS = [
     facts: [
       ['Min. deposit', '₹100'],
       ['Trading fee', '0.49%'],
+      ['Payout in', '3 days'],
     ],
-    approval: 3,
     link: 'https://example.com/p/coinswitch',
   },
 
