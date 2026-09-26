@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CATEGORIES, PRODUCTS } from './products.js'
-import { Earn, Icon } from './ui.jsx'
+import { Earn, Icon, Logo } from './ui.jsx'
 
 // Sample figures — wire these to the agent's real earnings.
 const EARNED = 2480
@@ -24,7 +24,7 @@ function MiniCard({ p, copied, onOpen, onShare }) {
     <article className="mini" style={{ '--accent': p.color }}>
       <button type="button" className="mini-face" onClick={() => onOpen(p)}>
         <span className="mini-head">
-          <span className="mini-logo" aria-hidden="true">{p.mono}</span>
+          <Logo p={p} className="mini-logo" />
           {p.status === 'top' && <span className="mini-badge">Top</span>}
         </span>
         <h3>{p.name}</h3>

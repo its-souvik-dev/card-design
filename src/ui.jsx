@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const ICONS = {
   back: 'M15 5 8 12l7 7',
   next: 'M9 5l7 7-7 7',
@@ -57,5 +59,24 @@ export function Earn({ p }) {
         <span className="unit-word">{rest.join(' ')}</span>
       </span>
     </p>
+  )
+}
+
+/* Brand logo from public/logos/<id>.png; falls back to the letter tile if missing. */
+export function Logo({ p, className }) {
+  const [broken, setBroken] = useState(false)
+  return (
+    <span className={className} aria-hidden="true">
+      {broken ? (
+        p.mono
+      ) : (
+        <img
+          src={`${import.meta.env.BASE_URL}logos/${p.id}.png`}
+          alt=""
+          loading="lazy"
+          onError={() => setBroken(true)}
+        />
+      )}
+    </span>
   )
 }

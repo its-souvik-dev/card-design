@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import Home from './Home.jsx'
 import { CATEGORIES, PRODUCTS } from './products.js'
-import { Earn, Icon } from './ui.jsx'
+import { Earn, Icon, Logo } from './ui.jsx'
 
 const SORTS = ['Highest earning', 'Top selling']
 
@@ -37,7 +37,7 @@ function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare }) {
       style={{ '--accent': p.color, '--i': index }}
     >
       <header className="card-head">
-        <div className="logo" aria-hidden="true">{p.mono}</div>
+        <Logo p={p} className="logo" />
         <div className="card-title">
           <h3>{p.name}</h3>
           <p>
