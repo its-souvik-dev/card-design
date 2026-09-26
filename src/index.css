@@ -1,0 +1,58 @@
+:root {
+  --paper: #e6ebe9;
+  --surface: #fbfcfc;
+  --ink: #0e1b2c;
+  --muted: #5e6b78;
+  --line: #d5dcdc;
+  --shadow: 0 1px 0 rgba(14, 27, 44, 0.05), 0 18px 40px -26px rgba(14, 27, 44, 0.45);
+
+  --display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --sans: 'Onest', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  font: 16px/1.45 var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #0a111c;
+    --surface: #111b29;
+    --ink: #e8eef5;
+    --muted: #8b98a7;
+    --line: #223043;
+    --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --paper: #0a111c;
+  --surface: #111b29;
+  --ink: #e8eef5;
+  --muted: #8b98a7;
+  --line: #223043;
+  --shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
