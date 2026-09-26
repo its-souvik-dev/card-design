@@ -1,164 +1,151 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 
-const REF = 'AK27'
+import { CATEGORIES, PRODUCTS } from './products.js'
 
-const APPS = [
-  {
-    id: 'paylo',
-    code: 'PAYLO',
-    name: 'Paylo',
-    category: 'Finance',
-    glyph: '₹',
-    color: '#4c4ddc',
-    rating: 4.7,
-    reviews: '2.1M',
-    payout: 150,
-    unit: 'per signup',
-    boost: '2× payout till Sunday',
-    points: ['Paid in 24 hrs', 'No KYC needed', 'Unlimited referrals'],
-    link: 'https://example.com/r/paylo',
-  },
-  {
-    id: 'quizzo',
-    code: 'QUIZ',
-    name: 'Quizzo',
-    category: 'Games',
-    glyph: 'Q',
-    color: '#e4572e',
-    rating: 4.5,
-    reviews: '860K',
-    payout: 60,
-    unit: 'per install',
-    boost: null,
-    points: ['Install & open is enough', 'Instant credit'],
-    link: 'https://example.com/r/quizzo',
-  },
-  {
-    id: 'cartly',
-    code: 'CART',
-    name: 'Cartly',
-    category: 'Shopping',
-    glyph: 'C',
-    color: '#0e9f6e',
-    rating: 4.4,
-    reviews: '1.3M',
-    payout: 8,
-    percent: true,
-    unit: 'of every order',
-    boost: 'Lifetime commission',
-    points: ['Earn on every order', 'Weekly payouts'],
-    link: 'https://example.com/r/cartly',
-  },
-  {
-    id: 'coinnest',
-    code: 'COIN',
-    name: 'CoinNest',
-    category: 'Finance',
-    glyph: 'N',
-    color: '#c98a00',
-    rating: 4.6,
-    reviews: '540K',
-    payout: 250,
-    unit: 'per first trade',
-    boost: null,
-    points: ['Min. trade ₹100', 'Paid in 48 hrs'],
-    link: 'https://example.com/r/coinnest',
-  },
-  {
-    id: 'fitstreak',
-    code: 'FIT',
-    name: 'FitStreak',
-    category: 'Health',
-    glyph: 'F',
-    color: '#d6336c',
-    rating: 4.8,
-    reviews: '320K',
-    payout: 90,
-    unit: 'per trial start',
-    boost: null,
-    points: ['Free trial counts', 'Highest-rated app here'],
-    link: 'https://example.com/r/fitstreak',
-  },
-]
+const APPROVAL = { 1: 'Fair', 2: 'Good', 3: 'Excellent' }
+const SORTS = ['Highest earning', 'Top selling']
 
-const FILTERS = ['All', 'Highest payout', 'Finance', 'Games', 'Shopping', 'Health']
+function load(key, fallback) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key))
+    return v ?? fallback
+  } catch {
+    return fallback
+  }
+}
 
-const byPayout = (list) =>
-  list.filter((a) => !a.percent).sort((a, b) => b.payout - a.payout)
+function save(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    /* storage blocked */
+  }
+}
 
-function Icon({ name }) {
-  const p = {
-    share: 'M7 17 17 7M9 7h8v8',
-    check: 'M5 12.5 10 17 19 7',
-    copy: 'M9 9h10v10H9zM5 15V5h10',
-  }[name]
+function initialTheme() {
+  const saved = load('theme', null)
+  if (saved === 'light' || saved === 'dark') return saved
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+const ICONS = {
+  back: 'M15 5 8 12l7 7',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM20 20l-4-4',
+  share: 'M7 17 17 7M9 7h8v8',
+  check: 'M5 12.5 10 17 19 7',
+  sort: 'M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3',
+  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
+  moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z',
+  sun: 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+}
+
+function Icon({ name, size = 18, filled = false }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d={p} stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d={ICONS[name]}
+        fill={filled ? 'currentColor' : 'none'}
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
 
-function OfferCard({ app, index, isTop, copied, onShare, onCopyCode }) {
-  const code = `${REF}-${app.code}`
-  const label = app.boost ?? (isTop ? 'Highest payout' : 'You earn')
-
+function ApprovalMeter({ level }) {
   return (
-    <article className="card" style={{ '--accent': app.color, '--i': index }}>
+    <span className={`meter meter-${level}`}>
+      <span className="meter-bars" aria-hidden="true">
+        {[1, 2, 3].map((n) => (
+          <i key={n} className={n <= level ? 'on' : ''} />
+        ))}
+      </span>
+      {APPROVAL[level]}
+    </span>
+  )
+}
+
+function ProductCard({ p, index, isFav, copied, onFav, onShare }) {
+  return (
+    <article className="card" style={{ '--accent': p.color, '--i': index }}>
       <header className="card-head">
-        <div className="app-icon" aria-hidden="true">{app.glyph}</div>
-        <div className="app-meta">
-          <h3>{app.name}</h3>
-          <p>{app.category} · {app.reviews} reviews</p>
+        <div className="logo" aria-hidden="true">{p.mono}</div>
+        <div className="card-title">
+          <h3>{p.name}</h3>
+          <p>
+            {p.bank}
+            <span className={`status status-${p.status}`}>
+              <span className="status-dot" />
+              {p.status === 'top' ? 'Top selling' : 'Active'}
+            </span>
+          </p>
         </div>
-        <div className="rating" aria-label={`Rated ${app.rating} out of 5`}>
-          <span className="star" aria-hidden="true">★</span>
-          {app.rating}
-        </div>
+        <button
+          type="button"
+          className={isFav ? 'fav is-on' : 'fav'}
+          aria-pressed={isFav}
+          aria-label={isFav ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`}
+          onClick={() => onFav(p.id)}
+        >
+          <Icon name="heart" filled={isFav} />
+        </button>
       </header>
 
       <ul className="points">
-        {app.points.map((p) => (
-          <li key={p}>
-            <Icon name="check" />
-            {p}
+        {p.points.map((pt) => (
+          <li key={pt}>
+            <Icon name="check" size={14} />
+            {pt}
           </li>
         ))}
       </ul>
 
+      <dl className="facts">
+        {p.facts.map(([k, v]) => (
+          <div key={k}>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+        {p.approval && (
+          <div>
+            <dt>Approval</dt>
+            <dd>
+              <ApprovalMeter level={p.approval} />
+            </dd>
+          </div>
+        )}
+      </dl>
+
       <div className="note">
-        <p className={app.boost || isTop ? 'note-label is-hot' : 'note-label'}>{label}</p>
+        <div className="note-top">
+          <p className="note-label">Earn upto</p>
+          {p.campaign && <span className="campaign">{p.campaign}</span>}
+        </div>
         <p className="amount">
-          {app.percent ? (
+          {p.percent ? (
             <>
-              {app.payout}
+              {p.earn}
               <span className="amount-sym">%</span>
             </>
           ) : (
             <>
               <span className="amount-sym">₹</span>
-              {app.payout}
+              {p.earn.toLocaleString('en-IN')}
             </>
           )}
           <span className="amount-unit">
-            <span className="unit-lead">{app.unit.split(' ')[0]}</span>
-            <span className="unit-word">{app.unit.split(' ').slice(1).join(' ')}</span>
+            <span className="unit-lead">{p.unit.split(' ')[0]}</span>
+            <span className="unit-word">{p.unit.split(' ').slice(1).join(' ')}</span>
           </span>
         </p>
         <div className="note-foot">
-          <button
-            type="button"
-            className="code"
-            onClick={() => onCopyCode(app, code)}
-            aria-label={`Copy referral code ${code}`}
-          >
-            {copied === `code-${app.id}` ? 'Code copied' : code}
-            <Icon name={copied === `code-${app.id}` ? 'check' : 'copy'} />
-          </button>
-          <button type="button" className="share" onClick={() => onShare(app)}>
-            {copied === `link-${app.id}` ? 'Link copied' : 'Share'}
-            <Icon name={copied === `link-${app.id}` ? 'check' : 'share'} />
+          <button type="button" className="share" onClick={() => onShare(p)}>
+            {copied === p.id ? 'Link copied' : 'Share to customer'}
+            <Icon name={copied === p.id ? 'check' : 'share'} size={16} />
           </button>
         </div>
       </div>
@@ -166,147 +153,181 @@ function OfferCard({ app, index, isTop, copied, onShare, onCopyCode }) {
   )
 }
 
-function initialTheme() {
-  try {
-    const saved = localStorage.getItem('theme')
-    if (saved === 'light' || saved === 'dark') return saved
-  } catch {
-    /* storage blocked */
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function ThemeToggle({ theme, onToggle }) {
-  const dark = theme === 'dark'
-  return (
-    <button
-      type="button"
-      className="theme-toggle"
-      onClick={onToggle}
-      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        {dark ? (
-          <>
-            <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="2" />
-            <path
-              d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </>
-        ) : (
-          <path
-            d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-        )}
-      </svg>
-    </button>
-  )
-}
-
 function App() {
   const [theme, setTheme] = useState(initialTheme)
-  const [filter, setFilter] = useState('All')
+  const [category, setCategory] = useState('cards')
+  const [bank, setBank] = useState('All')
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState(SORTS[0])
+  const [favs, setFavs] = useState(() => load('favs', []))
+  const [favOnly, setFavOnly] = useState(false)
   const [copied, setCopied] = useState(null)
   const timer = useRef()
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    try {
-      localStorage.setItem('theme', theme)
-    } catch {
-      /* storage blocked */
-    }
+    save('theme', theme)
   }, [theme])
 
-  const topId = useMemo(() => byPayout(APPS)[0].id, [])
+  useEffect(() => save('favs', favs), [favs])
+
+  const banks = useMemo(
+    () => ['All', ...new Set(PRODUCTS.filter((p) => p.category === category).map((p) => p.bank))],
+    [category],
+  )
 
   const visible = useMemo(() => {
-    if (filter === 'All') return APPS
-    if (filter === 'Highest payout') return byPayout(APPS)
-    return APPS.filter((a) => a.category === filter)
-  }, [filter])
+    const q = query.trim().toLowerCase()
+    const list = PRODUCTS.filter(
+      (p) =>
+        p.category === category &&
+        (bank === 'All' || p.bank === bank) &&
+        (!favOnly || favs.includes(p.id)) &&
+        (!q || `${p.name} ${p.bank}`.toLowerCase().includes(q)),
+    )
+    return sort === 'Top selling'
+      ? list.sort((a, b) => (b.status === 'top') - (a.status === 'top') || b.earn - a.earn)
+      : list.sort((a, b) => b.earn - a.earn)
+  }, [category, bank, query, sort, favOnly, favs])
 
-  function flash(key) {
-    setCopied(key)
-    clearTimeout(timer.current)
-    timer.current = setTimeout(() => setCopied(null), 1800)
+  function switchCategory(id, tab) {
+    setCategory(id)
+    setBank('All')
+    tab.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
   }
 
-  async function handleShare(app) {
-    const text = `Join ${app.name} with my link — ${app.points[0].toLowerCase()}.`
+  function toggleFav(id) {
+    setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]))
+  }
+
+  async function handleShare(p) {
+    const text = `Apply for the ${p.name} here:`
     try {
       if (navigator.share) {
-        await navigator.share({ title: app.name, text, url: app.link })
+        await navigator.share({ title: p.name, text, url: p.link })
         return
       }
-      await navigator.clipboard.writeText(`${text} ${app.link}`)
-      flash(`link-${app.id}`)
+      await navigator.clipboard.writeText(`${text} ${p.link}`)
+      setCopied(p.id)
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => setCopied(null), 1800)
     } catch {
       /* share sheet dismissed */
     }
   }
 
-  async function handleCopyCode(app, code) {
-    try {
-      await navigator.clipboard.writeText(code)
-      flash(`code-${app.id}`)
-    } catch {
-      /* clipboard unavailable */
-    }
+  function resetFilters() {
+    setQuery('')
+    setBank('All')
+    setFavOnly(false)
   }
 
   return (
-    <main className="page">
-      <header className="top">
-        <span className="brand">Share &amp; Earn</span>
-        <div className="top-actions">
-          <span className="wallet">
-            <span className="wallet-dot" />
-            ₹2,480 earned
-          </span>
-          <ThemeToggle theme={theme} onToggle={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
-        </div>
+    <div className="app">
+      <header className="topbar">
+        <button type="button" className="icon-btn ghost" aria-label="Back">
+          <Icon name="back" size={22} />
+        </button>
+        <h1>Products</h1>
+        <button
+          type="button"
+          className={favOnly ? 'icon-btn is-on' : 'icon-btn'}
+          aria-pressed={favOnly}
+          aria-label="Show favourites only"
+          onClick={() => setFavOnly((v) => !v)}
+        >
+          <Icon name="heart" filled={favOnly} />
+          {favs.length > 0 && <span className="badge">{favs.length}</span>}
+        </button>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
+        </button>
       </header>
 
-      <h1 className="headline">
-        Share an app.
-        <span>Get paid when they join.</span>
-      </h1>
-
-      <nav className="filters" aria-label="Filter offers">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            className={f === filter ? 'chip is-active' : 'chip'}
-            aria-pressed={f === filter}
-            onClick={() => setFilter(f)}
-          >
-            {f}
-          </button>
-        ))}
-      </nav>
-
-      <section className="grid" aria-label={`${visible.length} offers`}>
-        {visible.map((app, i) => (
-          <OfferCard
-            key={app.id}
-            app={app}
-            index={i}
-            isTop={app.id === topId}
-            copied={copied}
-            onShare={handleShare}
-            onCopyCode={handleCopyCode}
+      <main className="page">
+        <label className="search">
+          <Icon name="search" />
+          <input
+            type="search"
+            placeholder="Search products or pincode"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
-        ))}
-      </section>
-    </main>
+        </label>
+
+        <div className="tabs" role="tablist" aria-label="Product type">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={category === c.id}
+              className={category === c.id ? 'is-active' : ''}
+              onClick={(e) => switchCategory(c.id, e.currentTarget)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+
+        <nav className="chips" aria-label="Filter by brand">
+          {banks.map((b) => (
+            <button
+              key={b}
+              type="button"
+              className={b === bank ? 'chip is-active' : 'chip'}
+              aria-pressed={b === bank}
+              onClick={() => setBank(b)}
+            >
+              {b}
+            </button>
+          ))}
+        </nav>
+
+        <div className="list-head">
+          <p>
+            <strong>{visible.length}</strong> {visible.length === 1 ? 'product' : 'products'}
+            {favOnly && ' in favourites'}
+          </p>
+          <button
+            type="button"
+            className="sort"
+            onClick={() => setSort(SORTS[(SORTS.indexOf(sort) + 1) % SORTS.length])}
+          >
+            <Icon name="sort" size={15} />
+            {sort}
+          </button>
+        </div>
+
+        {visible.length ? (
+          <section className="grid">
+            {visible.map((p, i) => (
+              <ProductCard
+                key={p.id}
+                p={p}
+                index={i}
+                isFav={favs.includes(p.id)}
+                copied={copied}
+                onFav={toggleFav}
+                onShare={handleShare}
+              />
+            ))}
+          </section>
+        ) : (
+          <div className="empty">
+            <p>No products match these filters.</p>
+            <button type="button" className="chip is-active" onClick={resetFilters}>
+              Clear filters
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
 

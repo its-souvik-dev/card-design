@@ -6,9 +6,14 @@
   --line: #d5dcdc;
   --shadow: 0 1px 0 rgba(14, 27, 44, 0.05), 0 18px 40px -26px rgba(14, 27, 44, 0.45);
 
-  --display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
-  --sans: 'Onest', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --display: 'Poppins', system-ui, sans-serif;
+  --sans: 'Poppins', system-ui, sans-serif;
+  --mono: 'Poppins', system-ui, sans-serif;
+
+  /* Payout block keeps its own price-tag type */
+  --pay-num: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --pay-sans: 'Onest', system-ui, sans-serif;
+  --pay-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   font: 16px/1.45 var(--sans);
   color: var(--ink);
