@@ -228,7 +228,7 @@
 
 .amount {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   margin: 2px 0 12px;
   font-family: var(--display);
   font-weight: 900;
@@ -246,12 +246,46 @@
 }
 
 .amount-unit {
-  margin-left: 10px;
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  margin-left: 16px;
+  padding-left: 20px;
   letter-spacing: 0;
+}
+
+/* Price-tag slash: a thin diagonal stroke in the app colour. */
+.amount-unit::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 46px;
+  margin-top: -23px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: rotate(18deg);
+}
+
+.unit-lead {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--muted);
+}
+
+.unit-word {
+  margin-top: 5px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.05;
+  color: var(--ink);
 }
 
 .note-foot {

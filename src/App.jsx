@@ -141,7 +141,10 @@ function OfferCard({ app, index, isTop, copied, onShare, onCopyCode }) {
               {app.payout}
             </>
           )}
-          <span className="amount-unit">{app.unit}</span>
+          <span className="amount-unit">
+            <span className="unit-lead">{app.unit.split(' ')[0]}</span>
+            <span className="unit-word">{app.unit.split(' ').slice(1).join(' ')}</span>
+          </span>
         </p>
         <div className="note-foot">
           <button
