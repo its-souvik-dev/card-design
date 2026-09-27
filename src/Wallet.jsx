@@ -7,46 +7,24 @@ const MIN_WITHDRAW = 100
 
 /* Premium black balance card on the dashboard. */
 export function WalletCard({ wallet = WALLET, onWithdraw }) {
-  const [hidden, setHidden] = useState(false)
-  const mask = (n) => (hidden ? '•••' : n.toLocaleString('en-IN'))
-
   return (
     <section className="wcard" aria-label="Wallet">
-      <div className="wcard-top">
+      <div className="wcard-info">
         <span className="wcard-label">Wallet balance</span>
-        <button
-          type="button"
-          className="wcard-eye"
-          aria-label={hidden ? 'Show balance' : 'Hide balance'}
-          aria-pressed={hidden}
-          onClick={() => setHidden((h) => !h)}
-        >
-          <Icon name={hidden ? 'eyeOff' : 'eye'} size={14} />
-        </button>
-      </div>
-
-      <div className="wcard-main">
         <p className="wcard-amount">
           <span>₹</span>
-          {mask(wallet.balance)}
+          {wallet.balance.toLocaleString('en-IN')}
         </p>
-        <button type="button" className="wcard-cta" onClick={onWithdraw}>
-          Withdraw
-          <Icon name="next" size={13} />
-        </button>
+        <p className="wcard-stats">
+          <b className={wallet.today > 0 ? 'is-up' : ''}>+{inr(wallet.today)}</b> today
+          <i aria-hidden="true">·</i>
+          <b>{inr(wallet.lifetime)}</b> lifetime
+        </p>
       </div>
-
-      <ul className="wcard-stats">
-        <li>
-          <b className={wallet.today > 0 ? 'is-up' : ''}>+₹{mask(wallet.today)}</b> today
-        </li>
-        <li>
-          <b>₹{mask(wallet.pending)}</b> pending
-        </li>
-        <li>
-          <b>₹{mask(wallet.lifetime)}</b> lifetime
-        </li>
-      </ul>
+      <button type="button" className="wcard-cta" onClick={onWithdraw}>
+        Withdraw
+        <Icon name="next" size={13} />
+      </button>
     </section>
   )
 }

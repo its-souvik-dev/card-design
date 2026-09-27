@@ -55,6 +55,10 @@
 
 /* ---------- Wallet card (dashboard): simple, follows the theme ---------- */
 .wcard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -63,11 +67,8 @@
   animation: bento-in 0.35s both;
 }
 
-.wcard-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+.wcard-info { min-width: 0; }
+
 .wcard-label {
   font-size: 9.5px;
   font-weight: 600;
@@ -75,34 +76,14 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.wcard-eye {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  margin: -4px -4px -4px 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
-  color: var(--muted);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.wcard-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 4px 0 10px;
-}
 
 .wcard-amount {
   display: flex;
   align-items: flex-start;
   gap: 2px;
-  margin: 0;
+  margin: 3px 0 5px;
   font-family: var(--pay-num);
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: 0.02em;
@@ -114,12 +95,33 @@
   color: var(--muted);
 }
 
+.wcard-stats {
+  margin: 0;
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wcard-stats b {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.wcard-stats b.is-up { color: var(--up); }
+.wcard-stats i {
+  margin: 0 6px;
+  font-style: normal;
+  opacity: 0.6;
+}
+
 .wcard-cta {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: 4px;
-  height: 36px;
+  height: 38px;
   padding: 0 12px 0 16px;
   border: 0;
   border-radius: 99px;
@@ -132,30 +134,6 @@
   transition: transform 0.12s;
 }
 .wcard-cta:active { transform: scale(0.95); }
-
-/* One slim line of stats */
-.wcard-stats {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin: 0;
-  padding: 8px 0 0;
-  border-top: 1px solid var(--line);
-  list-style: none;
-}
-.wcard-stats li {
-  min-width: 0;
-  font-size: 10.5px;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.wcard-stats b {
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-}
-.wcard-stats b.is-up { color: var(--up); }
 
 /* ---------- Featured carousel ---------- */
 .rail {
@@ -1005,7 +983,6 @@
 
 /* ---------- Focus & motion ---------- */
 .wv-eye:focus-visible,
-.wcard-eye:focus-visible,
 .wb-cta:focus-visible,
 .wv-seg button:focus-visible,
 .wcard-cta:focus-visible,
