@@ -4,34 +4,53 @@
   padding-bottom: 96px;
 }
 
-/* Hero — tinted in the brand's own colour */
+/* Hero — mesh of the brand's own colour, initials watermark, payout ticket */
 .dt-hero {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 12px 16px 16px;
-  border-radius: 0 0 28px 28px;
+  padding: 12px 16px 18px;
+  border-radius: 0 0 30px 30px;
   color: #fff;
   background:
-    radial-gradient(90% 80% at 100% 0%, color-mix(in srgb, var(--accent) 70%, #fff 10%), transparent 65%),
-    linear-gradient(160deg, var(--accent), var(--deep));
+    radial-gradient(70% 60% at 90% 10%, color-mix(in srgb, var(--accent) 55%, #fff), transparent 70%),
+    radial-gradient(80% 70% at 0% 100%, color-mix(in srgb, var(--accent) 40%, #000), transparent 70%),
+    linear-gradient(165deg, var(--accent) 20%, var(--deep));
 }
-.dt-hero::after {
+
+/* Fine dot grain, strongest behind the title */
+.dt-hero::before {
   content: '';
   position: absolute;
+  inset: 0;
   z-index: -1;
-  right: -60px;
-  top: 40px;
-  width: 200px;
-  height: 200px;
-  border: 28px solid rgba(255, 255, 255, 0.07);
-  border-radius: 50%;
+  background: radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.2px) 0 0 / 14px 14px;
+  -webkit-mask: radial-gradient(80% 60% at 20% 30%, #000, transparent 75%);
+  mask: radial-gradient(80% 60% at 20% 30%, #000, transparent 75%);
+}
+
+.dt-mono {
+  position: absolute;
+  z-index: -1;
+  top: 18px;
+  right: -14px;
+  font-family: var(--pay-num);
+  font-size: 200px;
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.06);
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.35);
+  -webkit-mask: linear-gradient(180deg, #000 30%, transparent 95%);
+  mask: linear-gradient(180deg, #000 30%, transparent 95%);
+  user-select: none;
+  animation: dt-mono-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .dt-bar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .dt-glass {
@@ -39,7 +58,7 @@
   place-items: center;
   width: 38px;
   height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(8px);
@@ -51,97 +70,180 @@
 .dt-glass:active { transform: scale(0.92); }
 .dt-glass.is-on { background: #fff; color: var(--accent); }
 
-.dt-id {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.dt-id { max-width: 78%; }
 
 .dt-logo {
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
-  flex: none;
+  width: 52px;
+  height: 52px;
   overflow: hidden;
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.16),
+    0 14px 26px -12px rgba(0, 0, 0, 0.55);
   color: var(--accent);
   font-weight: 700;
 }
 .dt-logo img { width: 100%; height: 100%; object-fit: contain; }
 
-.dt-id h1 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-.dt-id p {
+.dt-bank {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 2px 0 0;
-  font-size: 12.5px;
-  opacity: 0.85;
+  margin: 12px 0 2px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
 }
 
 .dt-flag {
   padding: 2px 8px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 10.5px;
-  font-weight: 600;
+  background: #fff;
+  color: var(--deep);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.dt-earn {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: end;
-  column-gap: 10px;
-  margin: 18px 0 14px;
+.dt-id h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
-.dt-earn span {
-  grid-column: 1 / -1;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+
+/* White ticket with notched perforation */
+.dt-ticket-wrap {
+  position: relative;
+  margin-top: 18px;
+}
+
+.dt-sticker {
+  position: absolute;
+  z-index: 1;
+  top: -11px;
+  right: 108px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #ffd84d;
+  box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.45);
+  color: #3a2a00;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: rotate(-3deg);
+  animation: dt-stick 0.45s 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+@keyframes dt-stick {
+  from { opacity: 0; transform: rotate(-12deg) scale(0.6); }
+}
+
+.dt-ticket {
+  --stub: 96px;
+  display: flex;
+  border-radius: 20px;
+  background: #fff;
+  color: #14121c;
+  box-shadow: 0 18px 30px -16px rgba(0, 0, 0, 0.55);
+  -webkit-mask:
+    radial-gradient(circle 9px at calc(100% - var(--stub)) 0, transparent 98%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle 9px at calc(100% - var(--stub)) 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+  mask:
+    radial-gradient(circle 9px at calc(100% - var(--stub)) 0, transparent 98%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle 9px at calc(100% - var(--stub)) 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+  animation: dt-rise 0.5s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.dt-ticket-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 12px 14px 12px 16px;
+}
+.dt-ticket-main span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  opacity: 0.75;
+  color: #8a8794;
 }
-.dt-earn b {
+.dt-ticket-main b {
+  margin: 2px 0 1px;
   font-family: var(--pay-num);
-  font-size: clamp(46px, 14vw, 58px);
+  font-size: clamp(40px, 12vw, 50px);
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: 0.01em;
+  background: linear-gradient(180deg, var(--accent), var(--deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
-.dt-earn small {
-  padding-bottom: 6px;
-  font-size: 12px;
-  opacity: 0.8;
-}
+.dt-ticket-main small { font-size: 11.5px; color: #6c6977; }
 
-.dt-facts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: 0;
-  padding: 10px 0;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.18);
+.dt-ticket-stub {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: var(--stub);
+  border-left: 2px dashed #e4e2ea;
+  color: var(--accent);
+  text-align: center;
 }
-.dt-facts div { padding: 0 12px; }
-.dt-facts div + div { border-left: 1px solid rgba(255, 255, 255, 0.14); }
-.dt-facts dt { font-size: 10.5px; opacity: 0.7; }
-.dt-facts dd {
-  margin: 1px 0 0;
-  overflow: hidden;
-  font-size: 13.5px;
-  font-weight: 600;
-  text-overflow: ellipsis;
+.dt-ticket-stub b {
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #14121c;
+}
+.dt-ticket-stub small { font-size: 10.5px; color: #8a8794; }
+
+.dt-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 12px -16px 0;
+  padding: 0 16px;
+  scrollbar-width: none;
+  list-style: none;
+  animation: dt-rise 0.5s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.dt-chips::-webkit-scrollbar { display: none; }
+.dt-chips li {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 11.5px;
+  font-weight: 500;
   white-space: nowrap;
+}
+.dt-chips b { font-weight: 700; }
+
+@keyframes dt-mono-in {
+  from { opacity: 0; transform: translateX(30px); }
+}
+@keyframes dt-rise {
+  from { opacity: 0; transform: translateY(10px); }
 }
 
 /* Sticky section pills */
@@ -545,7 +647,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ladder-track span { animation: none; }
+  .ladder-track span,
+  .dt-mono,
+  .dt-ticket,
+  .dt-chips,
+  .dt-sticker { animation: none; }
   .faq-a,
   .faq-plus,
   .faq-plus::after { transition: none; }

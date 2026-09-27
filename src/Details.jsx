@@ -72,6 +72,11 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
   return (
     <div className="app dt" style={{ '--accent': p.color }}>
       <header className="dt-hero">
+        {/* Brand initials as a giant outlined watermark */}
+        <span className="dt-mono" aria-hidden="true">
+          {p.mono}
+        </span>
+
         <div className="dt-bar">
           <button type="button" className="dt-glass" aria-label="Back" onClick={onBack}>
             <Icon name="back" size={20} />
@@ -89,37 +94,41 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
 
         <div className="dt-id">
           <Logo p={p} className="dt-logo" />
-          <div>
-            <h1>{p.name}</h1>
-            <p>
-              {p.bank}
-              {p.status === 'top' && <span className="dt-flag">Top selling</span>}
-            </p>
-          </div>
+          <p className="dt-bank">
+            {p.bank}
+            {p.status === 'top' && <span className="dt-flag">★ Top selling</span>}
+          </p>
+          <h1>{p.name}</h1>
         </div>
 
-        <div className="dt-earn">
-          <span>Earn up to</span>
-          <b>{maxPayout}</b>
-          <small>{p.unit}</small>
+        {/* Payout ticket: amount on the left, approval stub on the right */}
+        <div className="dt-ticket-wrap">
+        {p.campaign && <span className="dt-sticker">{p.campaign}</span>}
+        <div className="dt-ticket">
+          <div className="dt-ticket-main">
+            <span>Earn up to</span>
+            <b>{maxPayout}</b>
+            <small>{p.unit}</small>
+          </div>
+          <div className="dt-ticket-stub">
+            <Icon name="bolt" size={18} />
+            <b>{d.approval}</b>
+            <small>approval</small>
+          </div>
+        </div>
         </div>
 
-        <dl className="dt-facts">
-          <div>
-            <dt>Approval</dt>
-            <dd>{d.approval}</dd>
-          </div>
-          <div>
-            <dt>Events</dt>
-            <dd>{d.events.length}</dd>
-          </div>
+        <ul className="dt-chips">
+          <li>
+            <Icon name="layers" size={14} />
+            {d.events.length} payout events
+          </li>
           {p.facts.slice(0, 1).map(([k, v]) => (
-            <div key={k}>
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </div>
+            <li key={k}>
+              {k} <b>{v}</b>
+            </li>
           ))}
-        </dl>
+        </ul>
       </header>
 
       <nav className="dt-nav" aria-label="Sections" ref={navRef}>
