@@ -63,12 +63,15 @@
   border-radius: 24px;
   color: #f4f4f5;
   /* Black face + brushed-metal edge */
+  /* Black face lit by an accent glow + accent-to-metal edge */
   background:
-    radial-gradient(120% 80% at 100% 0%, #26262b, #0b0b0d 60%) padding-box,
-    linear-gradient(135deg, #6b6b73, #1c1c20 30%, #1c1c20 65%, #8a8a93) border-box;
+    radial-gradient(80% 70% at 100% 0%, color-mix(in srgb, var(--brand) 55%, transparent), transparent 70%) padding-box,
+    radial-gradient(60% 60% at 0% 110%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%) padding-box,
+    linear-gradient(#0c0a14, #0c0a14) padding-box,
+    linear-gradient(135deg, color-mix(in srgb, var(--brand) 80%, #fff), #1d1a26 35%, #1d1a26 65%, color-mix(in srgb, var(--brand) 60%, #fff)) border-box;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 24px 40px -24px rgba(0, 0, 0, 0.85);
+    0 26px 44px -24px color-mix(in srgb, var(--brand) 70%, #000);
   animation: bento-in 0.35s both;
 }
 
@@ -115,7 +118,7 @@
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #8e8e96;
+  color: color-mix(in srgb, var(--brand) 35%, #b8b8c4);
 }
 
 .wcard-eye {
@@ -126,12 +129,12 @@
   margin: -4px -6px -4px 0;
   border: 0;
   border-radius: 50%;
-  background: none;
-  color: #8e8e96;
+  background: rgba(255, 255, 255, 0.06);
+  color: #c9c9d6;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Silver metallic number */
+/* Silver-to-accent metallic number */
 .wcard-amount {
   display: flex;
   align-items: flex-start;
@@ -143,19 +146,33 @@
   font-weight: 900;
   line-height: 0.9;
   letter-spacing: 0.02em;
-  background: linear-gradient(180deg, #ffffff 10%, #c9c9d0 55%, #7d7d86 100%);
+  background: linear-gradient(180deg, #ffffff 15%, color-mix(in srgb, var(--brand) 35%, #fff) 60%, color-mix(in srgb, var(--brand) 75%, #fff) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .wcard-amount span { margin-top: 0.12em; font-size: 0.45em; }
 
+/* Accent dot per stat */
+.wcard-stats dt::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin: 0 6px 1px 0;
+  border-radius: 50%;
+  background: var(--brand);
+  vertical-align: middle;
+}
+.wcard-stats div:first-child dt::before { background: #6ee7a8; }
+.wcard-stats div:nth-child(2) dt::before { background: #ffc94d; }
+
 .wcard-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin: 0 0 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid color-mix(in srgb, var(--brand) 25%, rgba(255, 255, 255, 0.06));
 }
 .wcard-stats div + div {
   padding-left: 12px;
@@ -166,7 +183,7 @@
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #6f6f78;
+  color: #8a8798;
 }
 .wcard-stats dd {
   margin: 4px 0 0;
@@ -186,9 +203,11 @@
   height: 46px;
   border: 0;
   border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff, #dcdce1);
-  box-shadow: 0 1px 0 #fff inset, 0 8px 18px -10px rgba(255, 255, 255, 0.35);
-  color: #0b0b0d;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 85%, #fff), var(--brand) 45%, color-mix(in srgb, var(--brand) 60%, #000));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 10px 22px -10px var(--brand);
+  color: #fff;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.18em;

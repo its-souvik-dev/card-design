@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import './Dashboard.css'
+import './Details.css'
 import Dashboard from './Dashboard.jsx'
+import Details from './Details.jsx'
 import Home from './Home.jsx'
 import Wallet from './Wallet.jsx'
 import { WALLET } from './wallet.js'
@@ -33,7 +35,7 @@ function initialTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare }) {
+function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare, onOpen }) {
   return (
     <article
       id={`p-${p.id}`}
@@ -43,7 +45,11 @@ function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare }) {
       <header className="card-head">
         <Logo p={p} className="logo" />
         <div className="card-title">
-          <h3>{p.name}</h3>
+          <h3>
+            <button type="button" className="card-open" onClick={() => onOpen(p)}>
+              {p.name}
+            </button>
+          </h3>
           <p>
             {p.bank}
             <span className={`status status-${p.status}`}>
@@ -104,6 +110,9 @@ function App() {
   // The tab to return to when leaving Products.
   const [tab, setTab] = useState('dashboard')
   const [focusId, setFocusId] = useState(null)
+  const [detail, setDetail] = useState(null)
+  // Where Back from a product's details returns to.
+  const [detailFrom, setDetailFrom] = useState('dashboard')
   const tabsRef = useRef()
   const [category, setCategory] = useState('cards')
   const [bank, setBank] = useState('All')
@@ -140,6 +149,18 @@ function App() {
     setFavOnly(false)
     setFocusId(productId)
     setScreen('products')
+    window.scrollTo(0, 0)
+  }
+
+  function openDetail(p) {
+    setDetailFrom(screen)
+    setDetail(p.id)
+    setScreen('detail')
+    window.scrollTo(0, 0)
+  }
+
+  function closeDetail() {
+    setScreen(detailFrom)
     window.scrollTo(0, 0)
   }
 
@@ -207,13 +228,28 @@ function App() {
     setFavOnly(false)
   }
 
+  if (screen === 'detail') {
+    const p = PRODUCTS.find((x) => x.id === detail)
+    return (
+      <Details
+        key={p.id}
+        p={p}
+        isFav={favs.includes(p.id)}
+        copied={copied}
+        onBack={closeDetail}
+        onFav={toggleFav}
+        onShare={handleShare}
+      />
+    )
+  }
+
   if (screen !== 'products') {
     const shared = {
       theme,
       onTheme: toggleTheme,
       copied,
       onOpenCategory: (id) => openProducts(id),
-      onOpenProduct: (p) => openProducts(p.category, p.id),
+      onOpenProduct: openDetail,
       onShare: handleShare,
     }
     return (
@@ -320,6 +356,7 @@ function App() {
                 copied={copied}
                 onFav={toggleFav}
                 onShare={handleShare}
+                onOpen={openDetail}
               />
             ))}
           </section>
