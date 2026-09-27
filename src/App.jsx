@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import './Dashboard.css'
+import Dashboard from './Dashboard.jsx'
 import Home from './Home.jsx'
+import Wallet from './Wallet.jsx'
+import { WALLET } from './wallet.js'
 import { CATEGORIES, PRODUCTS } from './products.js'
-import { Earn, Icon, Logo } from './ui.jsx'
+import { BottomNav, Earn, Icon, Logo } from './ui.jsx'
 
 const SORTS = ['Highest earning', 'Top selling']
 
@@ -96,7 +100,9 @@ function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare }) {
 
 function App() {
   const [theme, setTheme] = useState(initialTheme)
-  const [screen, setScreen] = useState('home')
+  const [screen, setScreen] = useState('dashboard')
+  // The tab to return to when leaving Products.
+  const [tab, setTab] = useState('dashboard')
   const [focusId, setFocusId] = useState(null)
   const tabsRef = useRef()
   const [category, setCategory] = useState('cards')
@@ -138,7 +144,13 @@ function App() {
   }
 
   function goHome() {
-    setScreen('home')
+    setScreen(tab)
+    window.scrollTo(0, 0)
+  }
+
+  function openTab(id) {
+    setTab(id)
+    setScreen(id)
     window.scrollTo(0, 0)
   }
 
@@ -195,17 +207,22 @@ function App() {
     setFavOnly(false)
   }
 
-  if (screen === 'home') {
+  if (screen !== 'products') {
+    const shared = {
+      theme,
+      onTheme: toggleTheme,
+      copied,
+      onOpenCategory: (id) => openProducts(id),
+      onOpenProduct: (p) => openProducts(p.category, p.id),
+      onShare: handleShare,
+    }
     return (
-      <Home
-        theme={theme}
-        onTheme={toggleTheme}
-        favs={favs}
-        copied={copied}
-        onOpenCategory={(id) => openProducts(id)}
-        onOpenProduct={(p) => openProducts(p.category, p.id)}
-        onShare={handleShare}
-      />
+      <>
+        {screen === 'dashboard' && <Dashboard {...shared} onWithdraw={() => openTab('wallet')} />}
+        {screen === 'home' && <Home {...shared} favs={favs} />}
+        {screen === 'wallet' && <Wallet theme={theme} onTheme={toggleTheme} />}
+        <BottomNav active={screen} onChange={openTab} balance={WALLET.balance} />
+      </>
     )
   }
 

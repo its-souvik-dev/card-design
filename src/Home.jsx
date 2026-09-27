@@ -107,7 +107,7 @@ export default function Home({ theme, onTheme, favs, copied, onOpenCategory, onO
         </button>
       </header>
 
-      <main className="page home">
+      <main className="page home has-nav">
         <section className="hero" aria-label="Your earnings this month">
           <p className="hero-label">Earned this month</p>
           <p className="hero-amount">{inr(EARNED)}</p>

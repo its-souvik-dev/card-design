@@ -10,6 +10,18 @@ const ICONS = {
   heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z',
   sun: 'M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  bell: 'M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16ZM10 21h4',
+  home: 'M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-8.5Z',
+  wallet: 'M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3M4 7.5V17a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 1 4 7.5ZM16 13.5h.01',
+  offers: 'M4 12V5.5A1.5 1.5 0 0 1 5.5 4H12l8 8-8 8-8-8ZM8.5 8.5h.01M9.5 15.5l6-6',
+  withdraw: 'M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14',
+  history: 'M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4M12 8v4l3 2',
+  eye: 'M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12ZM12 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z',
+  eyeOff: 'M4 4l16 16M10 5.7c.6-.1 1.3-.2 2-.2 6 0 9.5 6.5 9.5 6.5s-.9 1.7-2.6 3.4M6.6 6.6C4 8.3 2.5 12 2.5 12S6 18.5 12 18.5c1.8 0 3.4-.6 4.7-1.4M9.9 9.9a3 3 0 0 0 4.2 4.2',
+  userPlus: 'M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM3 20a7 7 0 0 1 12.5-4.3M19 14v6M16 17h6',
+  gift: 'M4 11h16v9H4v-9ZM3 7h18v4H3V7ZM12 7v13M12 7C10.5 3.5 7 4 7 5.8 7 7 9 7 12 7Zm0 0c1.5-3.5 5-3 5-1.2C17 7 15 7 12 7Z',
+  arrowIn: 'M17 7 7 17M7 9v8h8',
+  arrowOut: 'M7 17 17 7M9 7h8v8',
 
   // Category icons
   cards: 'M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11ZM3 10h18M7 15h4',
@@ -78,5 +90,31 @@ export function Logo({ p, className }) {
         />
       )}
     </span>
+  )
+}
+
+const TABS = [
+  { id: 'dashboard', label: 'Home', icon: 'home' },
+  { id: 'home', label: 'Offers', icon: 'offers' },
+  { id: 'wallet', label: 'Wallet', icon: 'wallet' },
+]
+
+/* Fixed bottom tab bar shared by the top-level screens. */
+export function BottomNav({ active, onChange, balance }) {
+  return (
+    <nav className="tabbar" aria-label="Main">
+      {TABS.map((t) => (
+        <button
+          key={t.id}
+          type="button"
+          className={active === t.id ? 'is-active' : ''}
+          aria-current={active === t.id ? 'page' : undefined}
+          onClick={() => onChange(t.id)}
+        >
+          <Icon name={t.icon} size={22} />
+          <span>{t.id === 'wallet' && balance != null ? `₹${balance.toLocaleString('en-IN')}` : t.label}</span>
+        </button>
+      ))}
+    </nav>
   )
 }
