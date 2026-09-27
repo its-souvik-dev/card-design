@@ -255,75 +255,113 @@
   gap: 6px;
   overflow-x: auto;
   padding: 10px 16px;
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   scrollbar-width: none;
 }
 .dt-nav::-webkit-scrollbar { display: none; }
 .dt-nav button {
   flex: none;
-  height: 32px;
-  padding: 0 14px;
+  height: 30px;
+  padding: 0 13px;
   border: 1px solid var(--line);
   border-radius: 99px;
   background: var(--surface);
   color: var(--muted);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .dt-nav button.is-on {
   border-color: transparent;
-  background: var(--ink);
-  color: var(--paper);
+  background: linear-gradient(150deg, var(--accent), var(--deep));
+  box-shadow: 0 6px 14px -8px var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
 .dt-body {
+  /* Accent that stays readable on both light and dark surfaces */
+  --acc-ink: color-mix(in srgb, var(--accent) 70%, var(--ink));
+  --acc-soft: color-mix(in srgb, var(--accent) 10%, var(--surface));
   display: grid;
   gap: 10px;
   max-width: 720px;
   margin: 0 auto;
-  padding: 4px 16px 0;
+  padding: 2px 16px 0;
 }
 
 .dt-card {
-  padding: 14px 16px;
+  position: relative;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 22px;
   background: var(--surface);
-  scroll-margin-top: 104px;
+  scroll-margin-top: 60px;
 }
 
+/* Section head: accent badge + title + meta */
 .dt-h {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   margin: 0 0 12px;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
-.dt-h span {
+.dt-h-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 9px;
+  background: linear-gradient(150deg, var(--accent), var(--deep));
+  box-shadow: 0 6px 12px -7px var(--accent);
+  color: #fff;
+}
+.dt-h-title { flex: 1; min-width: 0; }
+.dt-h > span:last-child:not(.dt-h-title) {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 11.5px;
   font-weight: 500;
   color: var(--muted);
 }
+.dt-h .dt-total {
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--up) 12%, transparent);
+  color: var(--up) !important;
+  font-family: var(--pay-num);
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+}
 
-/* Payout ladder */
+/* Payout ladder — icons joined by a dashed rail */
 .ladder {
+  position: relative;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
+.ladder::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 20px;
+  bottom: 20px;
+  border-left: 2px dashed color-mix(in srgb, var(--accent) 30%, var(--line));
+}
 .ladder li {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -334,23 +372,25 @@
   width: 34px;
   height: 34px;
   flex: none;
-  border-radius: 11px;
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  color: var(--accent);
+  border: 2px solid var(--surface);
+  border-radius: 12px;
+  background: var(--acc-soft);
+  color: var(--acc-ink);
+}
+.ladder li:last-child .ladder-icon {
+  background: linear-gradient(150deg, var(--accent), var(--deep));
+  color: #fff;
 }
 .ladder-main {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 }
-.ladder-name {
-  font-size: 13.5px;
-  font-weight: 600;
-}
+.ladder-name { font-size: 13px; font-weight: 600; }
 .ladder-track {
-  height: 5px;
+  height: 4px;
   border-radius: 99px;
   background: color-mix(in srgb, var(--ink) 7%, transparent);
 }
@@ -360,164 +400,192 @@
   min-width: 8px;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 55%, #fff), var(--accent));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 50%, #fff), var(--accent));
   transform-origin: left;
   animation: ladder-grow 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   animation-delay: calc(0.15s + var(--i) * 0.1s);
 }
 .ladder li > b {
-  min-width: 56px;
+  min-width: 54px;
   font-family: var(--pay-num);
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 900;
   letter-spacing: 0.01em;
   text-align: right;
   color: var(--up);
 }
 
-.ladder-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 14px 0 0;
-  padding-top: 12px;
-  border-top: 1px dashed var(--line);
-  font-size: 12px;
-  color: var(--muted);
-}
-.ladder-total b {
-  font-family: var(--pay-num);
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--ink);
-}
-
 @keyframes ladder-grow {
   from { transform: scaleX(0); }
 }
 
-/* Text blocks */
+/* Who to share — tinted card with the accent rail */
+.dt-audience {
+  overflow: hidden;
+  background: linear-gradient(150deg, var(--surface) 45%, var(--acc-soft));
+}
+.dt-audience::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
 .dt-text {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.6;
-  color: color-mix(in srgb, var(--ink) 80%, var(--muted));
+  color: color-mix(in srgb, var(--ink) 78%, var(--muted));
 }
 .dt-text.is-clamped {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .dt-more {
-  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
   padding: 0;
   border: 0;
   background: none;
-  color: var(--brand);
-  font-size: 12.5px;
-  font-weight: 600;
+  color: var(--acc-ink);
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.dt-benefits {
+/* Benefits — 2-up perk tiles */
+.dt-perks {
   display: grid;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.dt-benefits li {
-  display: flex;
-  gap: 10px;
+.dt-perks li {
+  padding: 10px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ink) 3.5%, transparent);
 }
-.dt-benefits p {
-  margin: 0;
-  font-size: 13.5px;
-  line-height: 1.5;
+.dt-perks b {
+  display: block;
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.dt-perks p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 3px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
-.dt-benefits b { font-weight: 600; color: var(--ink); }
 
 .dt-tick {
   display: grid;
   place-items: center;
   width: 20px;
   height: 20px;
-  flex: none;
-  margin-top: 1px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--up) 14%, transparent);
+  background: color-mix(in srgb, var(--up) 15%, transparent);
   color: var(--up);
 }
 
-/* Steps — a real sequence, so numbered and joined by a line */
+/* How it works — swipeable step cards, numbers echo the hero initials */
+.dt-card-bleed { padding-right: 0; overflow: hidden; }
+.dt-card-bleed .dt-h { padding-right: 14px; }
+
 .dt-steps {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
   margin: 0;
-  padding: 0;
+  padding: 0 14px 2px 0;
   list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
 }
+.dt-steps::-webkit-scrollbar { display: none; }
 .dt-steps li {
   position: relative;
-  display: flex;
-  gap: 12px;
-  padding-bottom: 10px;
-}
-.dt-steps li:last-child { padding-bottom: 0; }
-.dt-steps li:not(:last-child)::before {
-  content: '';
-  position: absolute;
-  left: 12px;
-  top: 26px;
-  bottom: 2px;
-  width: 2px;
-  border-radius: 2px;
-  background: color-mix(in srgb, var(--brand) 20%, transparent);
+  isolation: isolate;
+  overflow: hidden;
+  flex: none;
+  width: 136px;
+  min-height: 112px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--acc-soft);
+  scroll-snap-align: start;
 }
 .dt-step-no {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--brand-soft);
-  color: var(--brand);
-  font-family: var(--pay-mono);
-  font-size: 12px;
+  position: absolute;
+  z-index: -1;
+  right: 6px;
+  bottom: -14px;
+  font-family: var(--pay-num);
+  font-size: 76px;
+  font-weight: 900;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--accent) 35%, transparent);
 }
-.dt-steps li:last-child .dt-step-no {
-  background: var(--brand);
+.dt-steps b {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dt-steps p {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.dt-steps li:last-child {
+  background: linear-gradient(150deg, var(--accent), var(--deep));
   color: #fff;
 }
-.dt-steps b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 600; }
-.dt-steps p { margin: 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.dt-steps li:last-child p { color: rgba(255, 255, 255, 0.8); }
+.dt-steps li:last-child .dt-step-no { -webkit-text-stroke-color: rgba(255, 255, 255, 0.35); }
 
 /* Terms — folded by default */
 .dt-fold summary {
-  margin: 0;
   cursor: pointer;
   list-style: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .dt-fold summary::-webkit-details-marker { display: none; }
-.dt-fold summary svg { transform: rotate(90deg); transition: transform 0.2s; }
-.dt-fold[open] summary { margin-bottom: 12px; }
-.dt-fold[open] summary svg { transform: rotate(-90deg); }
+.dt-fold summary .dt-h { margin: 0; }
+.dt-fold summary svg:last-child { transform: rotate(90deg); transition: transform 0.2s; }
+.dt-fold[open] summary .dt-h { margin-bottom: 12px; }
+.dt-fold[open] summary svg:last-child { transform: rotate(-90deg); }
 
 .dt-terms {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   margin: 0;
   padding: 0 0 0 16px;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--muted);
 }
-.dt-terms li::marker { color: var(--brand); }
+.dt-terms li::marker { color: var(--accent); }
 
 /* FAQ accordion */
-.dt-faq { padding-bottom: 4px; }
-.dt-faq .dt-h { margin-bottom: 2px; }
+.dt-faq { padding-bottom: 2px; }
+.dt-faq .dt-h { margin-bottom: 4px; }
 .faq + .faq { border-top: 1px solid var(--line); }
 .faq button {
   display: flex;
@@ -525,15 +593,17 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  padding: 13px 0;
+  padding: 12px 0;
   border: 0;
   background: none;
   color: var(--ink);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
 }
+.faq.is-open button { color: var(--acc-ink); }
 
 .faq-plus {
   position: relative;
@@ -542,6 +612,7 @@
   flex: none;
   border-radius: 50%;
   background: color-mix(in srgb, var(--ink) 6%, transparent);
+  color: var(--ink);
   transition: background 0.2s, transform 0.25s;
 }
 .faq-plus::before,
@@ -557,7 +628,11 @@
   transform: translate(-50%, -50%);
 }
 .faq-plus::after { transform: translate(-50%, -50%) rotate(90deg); transition: transform 0.25s; }
-.faq.is-open .faq-plus { background: var(--brand); color: #fff; transform: rotate(180deg); }
+.faq.is-open .faq-plus {
+  background: linear-gradient(150deg, var(--accent), var(--deep));
+  color: #fff;
+  transform: rotate(180deg);
+}
 .faq.is-open .faq-plus::after { transform: translate(-50%, -50%) rotate(0); }
 
 .faq-a {
@@ -568,7 +643,7 @@
 .faq-a p {
   overflow: hidden;
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.55;
   color: var(--muted);
 }
@@ -639,6 +714,7 @@
 .dt-nav button:focus-visible,
 .dt-more:focus-visible,
 .dt-fold summary:focus-visible,
+.dt-steps:focus-visible,
 .faq button:focus-visible,
 .dt-copy:focus-visible,
 .dt-cta:focus-visible {

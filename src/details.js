@@ -27,10 +27,10 @@ const AUDIENCE = {
 }
 
 const BENEFITS = [
-  ['Trusted brand', 'a well-known name, so friends sign up with confidence.'],
-  ['Quick sign-up', 'fully digital, usually done in under 10 minutes.'],
-  ['Track every referral', 'see each step live in your wallet activity.'],
-  ['Paid to your UPI', 'withdraw once your balance crosses ₹100.'],
+  ['Trusted brand', 'a name people already know.'],
+  ['Quick sign-up', 'Fully online, done in minutes.'],
+  ['Live tracking', 'Every step shows in your wallet.'],
+  ['Paid to UPI', 'Withdraw from ₹100.'],
 ]
 
 export const STEPS = [

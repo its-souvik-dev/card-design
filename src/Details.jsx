@@ -11,15 +11,24 @@ const SECTIONS = [
   ['faq', 'FAQ'],
 ]
 
-const BENEFITS_FOLDED = 3
-
 const money = (v) => (typeof v === 'number' ? `₹${v.toLocaleString('en-IN')}` : v)
+
+function Head({ icon, title, children }) {
+  return (
+    <h2 className="dt-h">
+      <span className="dt-h-icon" aria-hidden="true">
+        <Icon name={icon} size={14} />
+      </span>
+      <span className="dt-h-title">{title}</span>
+      {children}
+    </h2>
+  )
+}
 
 export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
   const d = detailsFor(p)
   const [active, setActive] = useState(SECTIONS[0][0])
   const [readMore, setReadMore] = useState(false)
-  const [allBenefits, setAllBenefits] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
   const [linkCopied, setLinkCopied] = useState(false)
   const navRef = useRef()
@@ -38,7 +47,6 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
 
   const flat = d.events.filter(([, v]) => typeof v === 'number')
   const peak = Math.max(1, ...flat.map(([, v]) => v))
-  const benefits = allBenefits ? d.benefits : d.benefits.slice(0, BENEFITS_FOLDED)
   const maxPayout = p.percent ? `${p.earn}%` : money(p.earn)
 
   // Highlight the section pill for whatever is in view.
@@ -48,7 +56,7 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
         const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
         if (hit) setActive(hit.target.id.replace('d-', ''))
       },
-      { rootMargin: '-110px 0px -60% 0px' },
+      { rootMargin: '-70px 0px -60% 0px' },
     )
     SECTIONS.forEach(([id]) => {
       const el = document.getElementById(`d-${id}`)
@@ -66,7 +74,7 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
   function jump(id) {
     const el = document.getElementById(`d-${id}`)
     if (!el) return
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 104, behavior: 'smooth' })
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 58, behavior: 'smooth' })
   }
 
   return (
@@ -140,12 +148,15 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
       </nav>
 
       <main className="dt-body">
-        {/* Signature: payout ladder — bar length = share of the payout */}
+        {/* Payout ladder — bar length = share of the payout */}
         <section id="d-payouts" className="dt-card">
-          <h2 className="dt-h">
-            Payout events
-            <span>{d.events.length} steps</span>
-          </h2>
+          <Head icon="wallet" title="Payout events">
+            {!p.percent && d.events.length > 1 ? (
+              <span className="dt-total">Total {maxPayout}</span>
+            ) : (
+              <span>{d.events.length} step</span>
+            )}
+          </Head>
           <ol className="ladder">
             {d.events.map(([name, v, icon], i) => (
               <li key={name} style={{ '--w': typeof v === 'number' ? v / peak : 1, '--i': i }}>
@@ -162,53 +173,46 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
               </li>
             ))}
           </ol>
-          {!p.percent && d.events.length > 1 && (
-            <p className="ladder-total">
-              Total when all steps complete <b>{maxPayout}</b>
-            </p>
-          )}
         </section>
 
-        <section id="d-audience" className="dt-card">
-          <h2 className="dt-h">Who to share with</h2>
+        <section id="d-audience" className="dt-card dt-audience">
+          <Head icon="userPlus" title="Who to share with" />
           <p className={readMore ? 'dt-text' : 'dt-text is-clamped'}>{d.audience}</p>
           <button type="button" className="dt-more" onClick={() => setReadMore((v) => !v)}>
             {readMore ? 'Show less' : 'Read more'}
+            <Icon name="next" size={12} />
           </button>
         </section>
 
         <section id="d-benefits" className="dt-card">
-          <h2 className="dt-h">Benefits for your friend</h2>
-          <ul className="dt-benefits">
-            {benefits.map(([lead, rest]) => (
+          <Head icon="gift" title="Benefits">
+            <span>{d.benefits.length} perks</span>
+          </Head>
+          <ul className="dt-perks">
+            {d.benefits.map(([lead, rest]) => (
               <li key={lead}>
                 <span className="dt-tick">
-                  <Icon name="check" size={12} />
+                  <Icon name="check" size={11} />
                 </span>
-                <p>
-                  <b>{lead}</b>
-                  {rest && ` — ${rest}`}
-                </p>
+                <b>{lead}</b>
+                {rest && <p>{rest}</p>}
               </li>
             ))}
           </ul>
-          {d.benefits.length > BENEFITS_FOLDED && (
-            <button type="button" className="dt-more" onClick={() => setAllBenefits((v) => !v)}>
-              {allBenefits ? 'Show less' : `Show all ${d.benefits.length}`}
-            </button>
-          )}
         </section>
 
-        <section id="d-steps" className="dt-card">
-          <h2 className="dt-h">How it works</h2>
+        <section id="d-steps" className="dt-card dt-card-bleed">
+          <Head icon="history" title="How it works">
+            <span>Swipe →</span>
+          </Head>
           <ol className="dt-steps">
             {d.steps.map(([title, text], i) => (
               <li key={title}>
-                <span className="dt-step-no">{i + 1}</span>
-                <div>
-                  <b>{title}</b>
-                  <p>{text}</p>
-                </div>
+                <span className="dt-step-no" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <b>{title}</b>
+                <p>{text}</p>
               </li>
             ))}
           </ol>
@@ -216,12 +220,13 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
 
         <section id="d-terms" className="dt-card">
           <details className="dt-fold">
-            <summary className="dt-h">
-              Terms &amp; conditions
-              <span>
-                {d.terms.length} rules
-                <Icon name="next" size={14} />
-              </span>
+            <summary>
+              <Head icon="insurance" title="Terms & conditions">
+                <span>
+                  {d.terms.length} rules
+                  <Icon name="next" size={14} />
+                </span>
+              </Head>
             </summary>
             <ul className="dt-terms">
               {d.terms.map((t) => (
@@ -232,7 +237,7 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
         </section>
 
         <section id="d-faq" className="dt-card dt-faq">
-          <h2 className="dt-h">Questions</h2>
+          <Head icon="search" title="Questions" />
           {d.faqs.map(([q, a], i) => {
             const open = openFaq === i
             return (
