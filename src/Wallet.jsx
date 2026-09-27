@@ -21,34 +21,32 @@ export function WalletCard({ wallet = WALLET, onWithdraw }) {
           aria-pressed={hidden}
           onClick={() => setHidden((h) => !h)}
         >
-          <Icon name={hidden ? 'eyeOff' : 'eye'} size={16} />
+          <Icon name={hidden ? 'eyeOff' : 'eye'} size={14} />
         </button>
       </div>
 
-      <p className="wcard-amount">
-        <span>₹</span>
-        {mask(wallet.balance)}
-      </p>
+      <div className="wcard-main">
+        <p className="wcard-amount">
+          <span>₹</span>
+          {mask(wallet.balance)}
+        </p>
+        <button type="button" className="wcard-cta" onClick={onWithdraw}>
+          Withdraw
+          <Icon name="next" size={13} />
+        </button>
+      </div>
 
-      <dl className="wcard-stats">
-        <div>
-          <dt>Today</dt>
-          <dd className={wallet.today > 0 ? 'is-up' : ''}>+₹{mask(wallet.today)}</dd>
-        </div>
-        <div>
-          <dt>Pending</dt>
-          <dd>₹{mask(wallet.pending)}</dd>
-        </div>
-        <div>
-          <dt>Lifetime</dt>
-          <dd>₹{mask(wallet.lifetime)}</dd>
-        </div>
-      </dl>
-
-      <button type="button" className="wcard-cta" onClick={onWithdraw}>
-        Withdraw
-        <Icon name="next" size={14} />
-      </button>
+      <ul className="wcard-stats">
+        <li>
+          <b className={wallet.today > 0 ? 'is-up' : ''}>+₹{mask(wallet.today)}</b> today
+        </li>
+        <li>
+          <b>₹{mask(wallet.pending)}</b> pending
+        </li>
+        <li>
+          <b>₹{mask(wallet.lifetime)}</b> lifetime
+        </li>
+      </ul>
     </section>
   )
 }
@@ -144,6 +142,30 @@ function WithdrawSheet({ balance, onClose }) {
   )
 }
 
+const STATS = [
+  ['Pending', WALLET.pending, '#e39a00', 'history'],
+  ['Lifetime', WALLET.lifetime, '#12a37a', 'demat'],
+  ['Withdrawn', WALLET.withdrawn, '#2f7cf6', 'check'],
+]
+
+const SPLIT = [
+  ['Available', WALLET.balance, 'var(--brand)'],
+  ['Pending', WALLET.pending, '#e39a00'],
+  ['Withdrawn', WALLET.withdrawn, '#2f7cf6'],
+]
+const SPLIT_TOTAL = SPLIT.reduce((n, [, v]) => n + v, 0) || 1
+
+// Balance over time, replayed from the activity log (oldest first).
+const SPARK = (() => {
+  const points = [0]
+  ;[...ACTIVITY].reverse().forEach((t) => points.push(points.at(-1) + t.amount))
+  const max = Math.max(...points) || 1
+  const step = 100 / (points.length - 1)
+  return points
+    .map((v, i) => `${i ? 'L' : 'M'}${(i * step).toFixed(1)} ${(28 - (v / max) * 24).toFixed(1)}`)
+    .join(' ')
+})()
+
 const FILTERS = [
   ['all', 'All'],
   ['in', 'Earned'],
@@ -182,7 +204,7 @@ export default function Wallet({ theme, onTheme }) {
         <section className="wb" aria-label="Balance">
           <div className="wb-hero">
             <div className="wv-top">
-              <span className="wv-label">Available balance</span>
+              <span className="wv-label">Balance</span>
               <button
                 type="button"
                 className="wv-eye"
@@ -190,66 +212,76 @@ export default function Wallet({ theme, onTheme }) {
                 aria-pressed={hidden}
                 onClick={() => setHidden((h) => !h)}
               >
-                <Icon name={hidden ? 'eyeOff' : 'eye'} size={16} />
+                <Icon name={hidden ? 'eyeOff' : 'eye'} size={14} />
               </button>
             </div>
             <p className="wv-amount">
               <span>₹</span>
               {mask(WALLET.balance)}
             </p>
-            <span className="wb-today">
-              <Icon name="arrowIn" size={12} />
-              ₹{mask(WALLET.today)} today
-            </span>
+            <span className="wb-today">+₹{mask(WALLET.today)} today</span>
+            <svg className="wb-spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="wb-spark-fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="currentColor" stopOpacity="0.35" />
+                  <stop offset="1" stopColor="currentColor" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={`${SPARK} L100 30 L0 30 Z`} fill="url(#wb-spark-fill)" />
+              <path d={SPARK} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+            </svg>
           </div>
 
-          <div className="wb-tile" style={{ '--hue': '#e39a00' }}>
-            <span className="bento-icon">
-              <Icon name="history" size={15} />
-            </span>
-            <span>
-              <small>Pending</small>
-              <b>₹{mask(WALLET.pending)}</b>
-            </span>
-          </div>
+          {STATS.slice(0, 2).map(([label, value, hue, icon]) => (
+            <div key={label} className="wb-tile" style={{ '--hue': hue }}>
+              <span className="wb-tile-icon">
+                <Icon name={icon} size={11} />
+              </span>
+              <small>{label}</small>
+              <b>₹{mask(value)}</b>
+            </div>
+          ))}
 
-          <div className="wb-tile" style={{ '--hue': '#12a37a' }}>
-            <span className="bento-icon">
-              <Icon name="demat" size={15} />
-            </span>
-            <span>
-              <small>Lifetime</small>
-              <b>₹{mask(WALLET.lifetime)}</b>
-            </span>
-          </div>
-
-          <div className="wb-tile" style={{ '--hue': '#2f7cf6' }}>
-            <span className="bento-icon">
-              <Icon name="check" size={15} />
-            </span>
-            <span>
-              <small>Withdrawn</small>
-              <b>₹{mask(WALLET.withdrawn)}</b>
-            </span>
-          </div>
-
-          <button
-            type="button"
-            className="wb-cta"
-            disabled={!canWithdraw}
-            onClick={() => setSheet(true)}
-          >
+          <button type="button" className="wb-cta" disabled={!canWithdraw} onClick={() => setSheet(true)}>
             <span className="wb-cta-icon">
-              <Icon name="withdraw" size={18} />
+              <Icon name="withdraw" size={16} />
             </span>
-            <span>
+            <span className="wb-cta-text">
               <b>Withdraw</b>
               <small>
-                {canWithdraw ? `Min ${inr(MIN_WITHDRAW)} · to UPI` : `Earn ${inr(MIN_WITHDRAW - WALLET.balance)} more`}
+                {canWithdraw ? `Min ${inr(MIN_WITHDRAW)} · UPI` : `${inr(MIN_WITHDRAW - WALLET.balance)} more`}
               </small>
             </span>
-            <Icon name="next" size={16} />
+            <Icon name="next" size={14} />
           </button>
+
+          {STATS.slice(2).map(([label, value, hue, icon]) => (
+            <div key={label} className="wb-tile" style={{ '--hue': hue }}>
+              <span className="wb-tile-icon">
+                <Icon name={icon} size={11} />
+              </span>
+              <small>{label}</small>
+              <b>₹{mask(value)}</b>
+            </div>
+          ))}
+
+          <div className="wb-split">
+            <small>
+              Where your <b>₹{mask(SPLIT_TOTAL)}</b> is
+            </small>
+            <div className="wb-split-bar" aria-hidden="true">
+              {SPLIT.map(([k, v, c]) => (
+                <span key={k} style={{ '--w': v / SPLIT_TOTAL, '--c': c }} />
+              ))}
+            </div>
+            <ul>
+              {SPLIT.map(([k, v, c]) => (
+                <li key={k} style={{ '--c': c }}>
+                  <span>{k}</span> {Math.round((v / SPLIT_TOTAL) * 100)}%
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         <section className="wv-activity">

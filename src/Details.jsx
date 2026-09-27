@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { detailsFor } from './details.js'
 import { Icon, Logo } from './ui.jsx'
 
-const SECTIONS = [
-  ['payouts', 'Payouts'],
-  ['audience', 'Who to share'],
-  ['benefits', 'Benefits'],
-  ['steps', 'How it works'],
-  ['terms', 'Terms'],
-  ['faq', 'FAQ'],
+// Share targets for the pull-up sheet. `href` builds the app's share link.
+const APPS = [
+  ['WhatsApp', 'whatsapp', '#25d366', (t) => `https://wa.me/?text=${encodeURIComponent(t)}`],
+  ['Telegram', 'telegram', '#229ed9', (t, u) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}`],
+  ['Facebook', 'facebook', '#1877f2', (t, u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}`],
+  ['X', 'xlogo', '#111111', (t, u) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}&url=${encodeURIComponent(u)}`],
+  ['SMS', 'sms', '#34a853', (t) => `sms:?&body=${encodeURIComponent(t)}`],
+  ['Email', 'mail', '#ea4335', (t, u, subject) => `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(t)}`],
 ]
 
 const money = (v) => (typeof v === 'number' ? `₹${v.toLocaleString('en-IN')}` : v)
@@ -27,12 +28,15 @@ function Head({ icon, title, children }) {
 
 export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
   const d = detailsFor(p)
-  const [active, setActive] = useState(SECTIONS[0][0])
   const [readMore, setReadMore] = useState(false)
   const [openFaq, setOpenFaq] = useState(null)
+  const [sheet, setSheet] = useState(false)
+  const [drag, setDrag] = useState(0)
   const [linkCopied, setLinkCopied] = useState(false)
-  const navRef = useRef()
+  const startY = useRef(null)
+  const moved = useRef(false)
   const copyTimer = useRef()
+  const shareText = `Apply for the ${p.name} here: ${p.link}`
 
   async function copyLink() {
     try {
@@ -45,37 +49,34 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
     }
   }
 
+  // Drag the bar up to open the share sheet, down to close it.
+  function dragStart(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    startY.current = e.clientY
+    moved.current = false
+  }
+  function dragMove(e) {
+    if (startY.current == null) return
+    const dy = e.clientY - startY.current
+    if (!moved.current && Math.abs(dy) > 6) {
+      moved.current = true
+      e.currentTarget.setPointerCapture?.(e.pointerId)
+    }
+    // Follow the finger a little, with resistance.
+    setDrag(Math.max(-40, Math.min(40, dy * 0.4)))
+  }
+  function dragEnd(e) {
+    if (startY.current == null) return
+    const dy = e.clientY - startY.current
+    startY.current = null
+    setDrag(0)
+    if (dy < -30) setSheet(true)
+    else if (dy > 30) setSheet(false)
+  }
+
   const flat = d.events.filter(([, v]) => typeof v === 'number')
   const peak = Math.max(1, ...flat.map(([, v]) => v))
   const maxPayout = p.percent ? `${p.earn}%` : money(p.earn)
-
-  // Highlight the section pill for whatever is in view.
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
-        if (hit) setActive(hit.target.id.replace('d-', ''))
-      },
-      { rootMargin: '-70px 0px -60% 0px' },
-    )
-    SECTIONS.forEach(([id]) => {
-      const el = document.getElementById(`d-${id}`)
-      if (el) io.observe(el)
-    })
-    return () => io.disconnect()
-  }, [])
-
-  useEffect(() => {
-    navRef.current
-      ?.querySelector('.is-on')
-      ?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
-  }, [active])
-
-  function jump(id) {
-    const el = document.getElementById(`d-${id}`)
-    if (!el) return
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 58, behavior: 'smooth' })
-  }
 
   return (
     <div className="app dt" style={{ '--accent': p.color }}>
@@ -138,14 +139,6 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
           ))}
         </ul>
       </header>
-
-      <nav className="dt-nav" aria-label="Sections" ref={navRef}>
-        {SECTIONS.map(([id, label]) => (
-          <button key={id} type="button" className={active === id ? 'is-on' : ''} onClick={() => jump(id)}>
-            {label}
-          </button>
-        ))}
-      </nav>
 
       <main className="dt-body">
         {/* Payout ladder — bar length = share of the payout */}
@@ -259,26 +252,91 @@ export default function Details({ p, isFav, copied, onBack, onFav, onShare }) {
         </section>
       </main>
 
-      <div className="dt-dock">
+      {sheet && <div className="dt-scrim" onClick={() => setSheet(false)} />}
+
+      <div
+        className={sheet ? 'dt-dock is-open' : 'dt-dock'}
+        style={{ '--drag': `${drag}px` }}
+        onPointerDown={dragStart}
+        onPointerMove={dragMove}
+        onPointerUp={dragEnd}
+        onPointerCancel={dragEnd}
+        onClickCapture={(e) => {
+          // A drag should not also count as a tap on whatever it started on.
+          if (moved.current) {
+            e.stopPropagation()
+            e.preventDefault()
+            moved.current = false
+          }
+        }}
+      >
         <button
           type="button"
-          className={linkCopied ? 'dt-copy is-done' : 'dt-copy'}
-          aria-label={linkCopied ? 'Link copied' : 'Copy link'}
-          onClick={copyLink}
+          className="dt-grip"
+          aria-label={sheet ? 'Hide share options' : 'Show share options'}
+          aria-expanded={sheet}
+          onClick={() => setSheet((v) => !v)}
         >
-          <Icon name={linkCopied ? 'check' : 'link'} size={18} />
+          <span />
         </button>
-        <button type="button" className="dt-cta" onClick={() => onShare(p)}>
-          {copied === p.id ? (
-            <>
-              <Icon name="check" size={18} /> Link copied
-            </>
-          ) : (
-            <>
-              Share &amp; earn <b>{maxPayout}</b>
-            </>
-          )}
-        </button>
+
+        <div className="dt-sheet" aria-hidden={!sheet}>
+          <div className="dt-sheet-in">
+            <p className="dt-sheet-title">Share via</p>
+            <div className="dt-apps">
+              {APPS.map(([name, icon, color, href]) => (
+                <a
+                  key={name}
+                  className="dt-app"
+                  href={href(shareText, p.link, p.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={sheet ? 0 : -1}
+                  style={{ '--c': color }}
+                >
+                  <i>
+                    <Icon name={icon} size={20} />
+                  </i>
+                  {name}
+                </a>
+              ))}
+              <button type="button" className="dt-app" tabIndex={sheet ? 0 : -1} onClick={copyLink} style={{ '--c': '#5e6b78' }}>
+                <i>
+                  <Icon name={linkCopied ? 'check' : 'link'} size={20} />
+                </i>
+                {linkCopied ? 'Copied' : 'Copy link'}
+              </button>
+              <button type="button" className="dt-app" tabIndex={sheet ? 0 : -1} onClick={() => onShare(p)} style={{ '--c': '#0e1b2c' }}>
+                <i>
+                  <Icon name="more" size={20} />
+                </i>
+                More
+              </button>
+            </div>
+
+            <div className="dt-msg">
+              <small>Message your friends will get</small>
+              <p>{shareText}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="dt-dock-row">
+          <div className="dt-dock-earn">
+            <small>{copied === p.id ? 'Link copied — paste it anywhere' : sheet ? 'Pick an app to share' : 'Swipe up to share'}</small>
+            <p>
+              Earn <b>{maxPayout}</b> {p.unit}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="dt-cta"
+            aria-label={`Share ${p.name}`}
+            onClick={() => onShare(p)}
+          >
+            <Icon name={copied === p.id ? 'check' : 'share'} size={19} />
+          </button>
+        </div>
       </div>
     </div>
   )

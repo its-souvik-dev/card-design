@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import './App.css'
 import './Dashboard.css'
 import './Details.css'
@@ -35,11 +44,11 @@ function initialTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare, onOpen }) {
+function ProductCard({ p, index, isFav, copied, onFav, onShare, onOpen }) {
   return (
     <article
       id={`p-${p.id}`}
-      className={isFocus ? 'card is-focus' : 'card'}
+      className="card"
       style={{ '--accent': p.color, '--i': index }}
     >
       <header className="card-head">
@@ -104,78 +113,70 @@ function ProductCard({ p, index, isFav, isFocus, copied, onFav, onShare, onOpen 
   )
 }
 
-function App() {
-  const [theme, setTheme] = useState(initialTheme)
-  const [screen, setScreen] = useState('dashboard')
-  // The tab to return to when leaving Products.
-  const [tab, setTab] = useState('dashboard')
-  const [focusId, setFocusId] = useState(null)
-  const [detail, setDetail] = useState(null)
-  // Where Back from a product's details returns to.
-  const [detailFrom, setDetailFrom] = useState('dashboard')
+// Bottom-nav tab id → URL.
+const TAB_PATHS = { dashboard: '/', home: '/offers', wallet: '/wallet' }
+
+/* Start each new page at the top, like a native screen change. */
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
+/* Go back in history; if the page was opened directly, fall back to Home. */
+function useBack() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  return () => (location.key !== 'default' ? navigate(-1) : navigate('/', { replace: true }))
+}
+
+/* The top-level screens that share the bottom tab bar. */
+function TabScreen({ tab, children }) {
+  const navigate = useNavigate()
+  return (
+    <>
+      {children}
+      <BottomNav active={tab} onChange={(id) => navigate(TAB_PATHS[id])} balance={WALLET.balance} />
+    </>
+  )
+}
+
+function DetailsPage({ favs, copied, onFav, onShare }) {
+  const { id } = useParams()
+  const back = useBack()
+  const p = PRODUCTS.find((x) => x.id === id)
+  if (!p) return <Navigate to="/" replace />
+  return (
+    <Details
+      key={p.id}
+      p={p}
+      isFav={favs.includes(p.id)}
+      copied={copied}
+      onBack={back}
+      onFav={onFav}
+      onShare={onShare}
+    />
+  )
+}
+
+function ProductsPage({ theme, onTheme, favs, copied, onFav, onShare }) {
+  const { category = CATEGORIES[0].id } = useParams()
+  const navigate = useNavigate()
+  const back = useBack()
   const tabsRef = useRef()
-  const [category, setCategory] = useState('cards')
   const [bank, setBank] = useState('All')
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState(SORTS[0])
-  const [favs, setFavs] = useState(() => load('favs', []))
   const [favOnly, setFavOnly] = useState(false)
-  const [copied, setCopied] = useState(null)
-  const timer = useRef()
 
+  // Keep the active category tab in view.
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    save('theme', theme)
-  }, [theme])
-
-  useEffect(() => save('favs', favs), [favs])
-
-  // Arriving on Products: centre the active tab, then bring a tapped product into view.
-  useEffect(() => {
-    if (screen !== 'products') return
     tabsRef.current
       ?.querySelector('.is-active')
-      ?.scrollIntoView({ inline: 'center', block: 'nearest' })
-    if (!focusId) return
-    document.getElementById(`p-${focusId}`)?.scrollIntoView({ block: 'center' })
-    const t = setTimeout(() => setFocusId(null), 1600)
-    return () => clearTimeout(t)
-  }, [screen, category, focusId])
-
-  function openProducts(categoryId, productId = null) {
-    setCategory(categoryId)
-    setBank('All')
-    setQuery('')
-    setFavOnly(false)
-    setFocusId(productId)
-    setScreen('products')
-    window.scrollTo(0, 0)
-  }
-
-  function openDetail(p) {
-    setDetailFrom(screen)
-    setDetail(p.id)
-    setScreen('detail')
-    window.scrollTo(0, 0)
-  }
-
-  function closeDetail() {
-    setScreen(detailFrom)
-    window.scrollTo(0, 0)
-  }
-
-  function goHome() {
-    setScreen(tab)
-    window.scrollTo(0, 0)
-  }
-
-  function openTab(id) {
-    setTab(id)
-    setScreen(id)
-    window.scrollTo(0, 0)
-  }
-
-  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark')
+      ?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+  }, [category])
 
   const banks = useMemo(
     () => ['All', ...new Set(PRODUCTS.filter((p) => p.category === category).map((p) => p.bank))],
@@ -196,30 +197,12 @@ function App() {
       : list.sort((a, b) => b.earn - a.earn)
   }, [category, bank, query, sort, favOnly, favs])
 
-  function switchCategory(id, tab) {
-    setCategory(id)
+  if (!CATEGORIES.some((c) => c.id === category)) return <Navigate to="/" replace />
+
+  function switchCategory(id) {
     setBank('All')
-    tab.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
-  }
-
-  function toggleFav(id) {
-    setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]))
-  }
-
-  async function handleShare(p) {
-    const text = `Apply for the ${p.name} here:`
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: p.name, text, url: p.link })
-        return
-      }
-      await navigator.clipboard.writeText(`${text} ${p.link}`)
-      setCopied(p.id)
-      clearTimeout(timer.current)
-      timer.current = setTimeout(() => setCopied(null), 1800)
-    } catch {
-      /* share sheet dismissed */
-    }
+    // Replace, so Back leaves the product list instead of stepping through tabs.
+    navigate(`/products/${id}`, { replace: true })
   }
 
   function resetFilters() {
@@ -228,44 +211,10 @@ function App() {
     setFavOnly(false)
   }
 
-  if (screen === 'detail') {
-    const p = PRODUCTS.find((x) => x.id === detail)
-    return (
-      <Details
-        key={p.id}
-        p={p}
-        isFav={favs.includes(p.id)}
-        copied={copied}
-        onBack={closeDetail}
-        onFav={toggleFav}
-        onShare={handleShare}
-      />
-    )
-  }
-
-  if (screen !== 'products') {
-    const shared = {
-      theme,
-      onTheme: toggleTheme,
-      copied,
-      onOpenCategory: (id) => openProducts(id),
-      onOpenProduct: openDetail,
-      onShare: handleShare,
-    }
-    return (
-      <>
-        {screen === 'dashboard' && <Dashboard {...shared} onWithdraw={() => openTab('wallet')} />}
-        {screen === 'home' && <Home {...shared} favs={favs} />}
-        {screen === 'wallet' && <Wallet theme={theme} onTheme={toggleTheme} />}
-        <BottomNav active={screen} onChange={openTab} balance={WALLET.balance} />
-      </>
-    )
-  }
-
   return (
     <div className="app">
       <header className="topbar">
-        <button type="button" className="icon-btn ghost" aria-label="Back to home" onClick={goHome}>
+        <button type="button" className="icon-btn ghost" aria-label="Back" onClick={back}>
           <Icon name="back" size={22} />
         </button>
         <h1>Products</h1>
@@ -283,7 +232,7 @@ function App() {
           type="button"
           className="icon-btn"
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={toggleTheme}
+          onClick={onTheme}
         >
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
         </button>
@@ -308,7 +257,7 @@ function App() {
               role="tab"
               aria-selected={category === c.id}
               className={category === c.id ? 'is-active' : ''}
-              onClick={(e) => switchCategory(c.id, e.currentTarget)}
+              onClick={() => switchCategory(c.id)}
             >
               {c.label}
             </button>
@@ -352,11 +301,10 @@ function App() {
                 p={p}
                 index={i}
                 isFav={favs.includes(p.id)}
-                isFocus={focusId === p.id}
                 copied={copied}
-                onFav={toggleFav}
-                onShare={handleShare}
-                onOpen={openDetail}
+                onFav={onFav}
+                onShare={onShare}
+                onOpen={(x) => navigate(`/product/${x.id}`)}
               />
             ))}
           </section>
@@ -370,6 +318,98 @@ function App() {
         )}
       </main>
     </div>
+  )
+}
+
+function AppRoutes() {
+  const navigate = useNavigate()
+  const [theme, setTheme] = useState(initialTheme)
+  const [favs, setFavs] = useState(() => load('favs', []))
+  const [copied, setCopied] = useState(null)
+  const timer = useRef()
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    save('theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    save('favs', favs)
+  }, [favs])
+
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark')
+
+  function toggleFav(id) {
+    setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]))
+  }
+
+  async function handleShare(p) {
+    const text = `Apply for the ${p.name} here:`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: p.name, text, url: p.link })
+        return
+      }
+      await navigator.clipboard.writeText(`${text} ${p.link}`)
+      setCopied(p.id)
+      clearTimeout(timer.current)
+      timer.current = setTimeout(() => setCopied(null), 1800)
+    } catch {
+      /* share sheet dismissed */
+    }
+  }
+
+  const shared = {
+    theme,
+    onTheme: toggleTheme,
+    copied,
+    onOpenCategory: (id) => navigate(`/products/${id}`),
+    onOpenProduct: (p) => navigate(`/product/${p.id}`),
+    onShare: handleShare,
+  }
+  const productProps = { theme, onTheme: toggleTheme, favs, copied, onFav: toggleFav, onShare: handleShare }
+
+  return (
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <TabScreen tab="dashboard">
+              <Dashboard {...shared} onWithdraw={() => navigate('/wallet')} />
+            </TabScreen>
+          }
+        />
+        <Route
+          path="/offers"
+          element={
+            <TabScreen tab="home">
+              <Home {...shared} favs={favs} />
+            </TabScreen>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <TabScreen tab="wallet">
+              <Wallet theme={theme} onTheme={toggleTheme} />
+            </TabScreen>
+          }
+        />
+        <Route path="/products/:category" element={<ProductsPage {...productProps} />} />
+        <Route path="/product/:id" element={<DetailsPage {...productProps} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 

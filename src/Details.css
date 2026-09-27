@@ -1,7 +1,7 @@
 /* ---------- Product details ---------- */
 .dt {
   --deep: color-mix(in srgb, var(--accent) 55%, #000);
-  padding-bottom: 96px;
+  padding-bottom: 84px;
 }
 
 /* Hero — mesh of the brand's own colour, initials watermark, payout ticket */
@@ -246,42 +246,6 @@
   from { opacity: 0; transform: translateY(10px); }
 }
 
-/* Sticky section pills */
-.dt-nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 10px 16px;
-  background: color-mix(in srgb, var(--paper) 86%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  scrollbar-width: none;
-}
-.dt-nav::-webkit-scrollbar { display: none; }
-.dt-nav button {
-  flex: none;
-  height: 30px;
-  padding: 0 13px;
-  border: 1px solid var(--line);
-  border-radius: 99px;
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 500;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-.dt-nav button.is-on {
-  border-color: transparent;
-  background: linear-gradient(150deg, var(--accent), var(--deep));
-  box-shadow: 0 6px 14px -8px var(--accent);
-  color: #fff;
-  font-weight: 600;
-}
-
 .dt-body {
   /* Accent that stays readable on both light and dark surfaces */
   --acc-ink: color-mix(in srgb, var(--accent) 70%, var(--ink));
@@ -290,7 +254,7 @@
   gap: 10px;
   max-width: 720px;
   margin: 0 auto;
-  padding: 2px 16px 0;
+  padding: 14px 16px 0;
 }
 
 .dt-card {
@@ -299,7 +263,6 @@
   border: 1px solid var(--line);
   border-radius: 22px;
   background: var(--surface);
-  scroll-margin-top: 60px;
 }
 
 /* Section head: accent badge + title + meta */
@@ -650,73 +613,189 @@
 .faq.is-open .faq-a { grid-template-rows: 1fr; }
 .faq.is-open .faq-a p { padding-bottom: 12px; }
 
-/* Bottom share dock */
+/* Bottom share bar — a slab in the brand's own colour; pull up for share apps */
+.dt-scrim {
+  position: fixed;
+  z-index: 19;
+  inset: 0;
+  background: rgba(8, 10, 18, 0.45);
+  animation: dt-fade 0.2s both;
+}
+@keyframes dt-fade {
+  from { opacity: 0; }
+}
+
 .dt-dock {
   position: fixed;
   z-index: 20;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  gap: 8px;
   max-width: 720px;
   margin: 0 auto;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, var(--paper) 30%);
+  padding: 0 12px calc(10px + env(safe-area-inset-bottom)) 16px;
+  border-radius: 22px 22px 0 0;
+  background:
+    radial-gradient(70% 60% at 100% 0%, rgba(255, 255, 255, 0.22), transparent 60%),
+    linear-gradient(150deg, var(--accent), var(--deep));
+  box-shadow: 0 -12px 28px -16px color-mix(in srgb, var(--accent) 70%, #000);
+  color: #fff;
+  touch-action: none;
+  user-select: none;
+  transform: translateY(var(--drag));
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1);
 }
 
-.dt-copy {
+.dt-grip {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-left: -2px;
+  padding: 6px 0 4px;
+  border: 0;
+  background: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+.dt-grip span {
+  width: 34px;
+  height: 3.5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.55);
+  transition: width 0.2s, background 0.2s;
+}
+.dt-dock.is-open .dt-grip span { width: 28px; background: rgba(255, 255, 255, 0.8); }
+
+/* Sheet body: collapses to zero height when closed */
+.dt-sheet {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.dt-dock.is-open .dt-sheet { grid-template-rows: 1fr; }
+.dt-sheet-in {
+  overflow: hidden;
+  min-height: 0;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.dt-dock.is-open .dt-sheet-in { opacity: 1; }
+
+.dt-sheet-title {
+  margin: 2px 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.dt-apps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 6px;
+  margin-right: 6px;
+}
+.dt-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.dt-app i {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  flex: none;
-  border: 1px solid var(--line);
+  width: 48px;
+  height: 48px;
   border-radius: 16px;
-  background: var(--surface);
-  color: var(--ink);
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s, color 0.2s;
+  background: #fff;
+  box-shadow: 0 8px 16px -10px rgba(0, 0, 0, 0.5);
+  color: var(--c);
+  transition: transform 0.12s;
 }
-.dt-copy.is-done { color: var(--up); }
+.dt-app:active i { transform: scale(0.9); }
+
+.dt-msg {
+  margin: 14px 6px 12px 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.16);
+}
+.dt-msg small { font-size: 10.5px; opacity: 0.7; }
+.dt-msg p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.dt-dock-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dt-dock-earn {
+  flex: 1;
+  min-width: 0;
+}
+.dt-dock-earn small {
+  display: block;
+  font-size: 10.5px;
+  line-height: 1.3;
+  opacity: 0.8;
+}
+.dt-dock-earn p {
+  overflow: hidden;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.25;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dt-dock-earn b {
+  font-family: var(--pay-num);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
 
 .dt-cta {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 52px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
   border: 0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 85%, #fff), var(--brand) 45%, color-mix(in srgb, var(--brand) 65%, #000));
-  box-shadow: 0 12px 24px -12px var(--brand);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.45);
+  color: var(--accent);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition: transform 0.12s;
 }
-.dt-cta b {
-  padding: 3px 9px;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.2);
-  font-family: var(--pay-num);
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-}
-.dt-cta:active,
-.dt-copy:active { transform: scale(0.96); }
+.dt-cta:active { transform: scale(0.92); }
 
 .dt-glass:focus-visible,
-.dt-nav button:focus-visible,
 .dt-more:focus-visible,
 .dt-fold summary:focus-visible,
 .dt-steps:focus-visible,
 .faq button:focus-visible,
-.dt-copy:focus-visible,
 .dt-cta:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
@@ -727,8 +806,16 @@
   .dt-mono,
   .dt-ticket,
   .dt-chips,
-  .dt-sticker { animation: none; }
+  .dt-sticker,
+  .dt-scrim { animation: none; }
+  .dt-dock,
+  .dt-sheet,
+  .dt-sheet-in { transition: none; }
   .faq-a,
   .faq-plus,
   .faq-plus::after { transition: none; }
 }
+
+.dt-dock .dt-cta:focus-visible,
+.dt-grip:focus-visible,
+.dt-app:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
