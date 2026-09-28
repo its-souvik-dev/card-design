@@ -60,6 +60,28 @@ export function Icon({ name, size = 18, filled = false }) {
   )
 }
 
+// Solid category glyphs (holes via even-odd fill).
+const CAT_ICONS = {
+  cards: 'M2 7a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v1H2V7Zm0 4h20v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-6Zm4 4v1.5h4V15H6Z',
+  loans: 'M2 6h20v12H2V6Zm10 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM5 9v1.5h1.5V9H5Zm12.5 4.5V15H19v-1.5h-1.5Z',
+  bank: 'M12 2 2 7v2h20V7L12 2ZM4 11h3v7H4v-7Zm6.5 0h3v7h-3v-7ZM17 11h3v7h-3v-7ZM2 20h20v2H2v-2Z',
+  demat: 'M4 14h4v7H4v-7Zm6-5h4v12h-4V9Zm6-6h4v18h-4V3Z',
+  insurance: 'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm-1.4 13.2L7.4 12l1.4-1.4 1.8 1.8 4.6-4.6 1.4 1.4-6 6Z',
+  invest: 'M11 3a9 9 0 1 0 10 10H11V3Zm2-1v9h9a9 9 0 0 0-9-9Z',
+  deals: 'M2 2h9.5L22 12.5 12.5 22 2 11.5V2Zm5 3.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z',
+  crypto: 'M12 2l8.7 5v10L12 22l-8.7-5V7L12 2Zm0 5-5 5 5 5 5-5-5-5Z',
+  all: 'M3 5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5Zm10 0a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5ZM3 15a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4Zm10 0a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4Z',
+  games: 'M7 6h10a5 5 0 0 1 5 5v2.5a3.5 3.5 0 0 1-6.3 2.1L14.5 14h-5l-1.2 1.6A3.5 3.5 0 0 1 2 13.5V11a5 5 0 0 1 5-5Zm-1 3.5V11H4.5v2H6v1.5h2V13h1.5v-2H8V9.5H6ZM16 10a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm2 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z',
+}
+
+export function CatIcon({ name, size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path d={CAT_ICONS[name]} fill="currentColor" fillRule="evenodd" />
+    </svg>
+  )
+}
+
 /* The payout figure: ₹2,400 / PER card issued. Used by full and mini cards. */
 export function Earn({ p }) {
   const [lead, ...rest] = p.unit.split(' ')

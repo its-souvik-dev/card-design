@@ -2,21 +2,21 @@ import { useRef, useState } from 'react'
 import { CATEGORIES, PRODUCTS } from './products.js'
 import { REFERRAL_BONUS, USER, inr } from './wallet.js'
 import { WalletCard } from './Wallet.jsx'
-import { Earn, Icon, Logo } from './ui.jsx'
+import { CatIcon, Earn, Icon, Logo } from './ui.jsx'
 
 const INVITE_LINK = 'https://example.com/invite/ankush'
 
-// Tile tint per category.
+// Accent colour per category.
 const HUES = {
-  cards: '#2f7cf6',
-  loans: '#e39a00',
-  bank: '#12a37a',
+  cards: '#3b6cff',
+  loans: '#e8930c',
+  bank: '#10a37f',
   demat: '#7b5cff',
-  insurance: '#e0365c',
-  invest: '#16a36b',
-  deals: '#ff6a2b',
-  crypto: '#d98a00',
-  games: '#b640dc',
+  insurance: '#e8425f',
+  invest: '#16a34a',
+  deals: '#f06424',
+  crypto: '#c98a00',
+  games: '#b33fd6',
 }
 
 function greeting() {
@@ -41,6 +41,7 @@ const FEATURED = PRODUCTS.filter((p) => p.status === 'top' && !p.percent)
 export default function Dashboard({ theme, onTheme, copied, onOpenCategory, onOpenProduct, onShare, onWithdraw }) {
   const [slide, setSlide] = useState(0)
   const [invited, setInvited] = useState(false)
+  const [allCats, setAllCats] = useState(false)
   const railRef = useRef()
   const inviteTimer = useRef()
 
@@ -137,33 +138,44 @@ export default function Dashboard({ theme, onTheme, copied, onOpenCategory, onOp
 
         <section>
           <header className="dash-head">
-            <h2>Browse categories</h2>
+            <div>
+              <h2>Browse categories</h2>
+              <p className="dash-sub">{PRODUCTS.length} offers across {CATEGORIES.length} categories</p>
+            </div>
           </header>
-          <nav className="bento" aria-label="Categories">
+          <nav className={allCats ? 'cats is-open' : 'cats'} aria-label="Categories">
             {TILES.map((c, i) => (
               <button
                 key={c.id}
                 type="button"
-                className={i === 0 ? 'bento-tile is-hero' : 'bento-tile'}
+                className={i < 7 ? 'cat' : 'cat is-extra'}
                 style={{ '--hue': HUES[c.id], '--i': i }}
                 onClick={() => onOpenCategory(c.id)}
               >
-                <span className="bento-icon">
-                  <Icon name={c.id} size={i === 0 ? 20 : 15} />
+                <span className="cat-icon">
+                  <CatIcon name={c.id} size={15} />
                 </span>
-                <span className="bento-text">
+                <span className="cat-text">
                   <b>{c.short}</b>
-                  {i > 0 && c.top && <em>{c.top}</em>}
+                  {c.top && <em>{c.top}</em>}
                 </span>
-                {i === 0 && c.top && (
-                  <span className="bento-pay">
-                    <small>Earn upto</small>
-                    {c.top}
-                  </span>
-                )}
-                {i === 0 && <span className="bento-count">{c.count} offers</span>}
               </button>
             ))}
+            <button
+              type="button"
+              className="cat is-more"
+              style={{ '--hue': 'var(--brand)', '--i': allCats ? TILES.length : 7 }}
+              aria-expanded={allCats}
+              onClick={() => setAllCats((v) => !v)}
+            >
+              <span className="cat-icon">
+                <CatIcon name="all" size={14} />
+              </span>
+              <span className="cat-text">
+                <b>{allCats ? 'Less' : 'More'}</b>
+                <em>{allCats ? 'Hide' : `+${TILES.length - 7}`}</em>
+              </span>
+            </button>
           </nav>
         </section>
 
